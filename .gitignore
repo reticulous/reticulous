@@ -1,0 +1,30 @@
+*.bak
+.DS_Store
+.claude/
+*.avi
+*.wav
+*.pcap
+build*/
+managed_components/
+dependencies.lock
+sdkconfig
+sdkconfig.old
+main/build_id.h
+main/app_build_epoch.c
+data/build_times
+data/webroot/
+
+# Web-interface / browser-package build artifacts (any subtree)
+**/node_modules/
+**/dist/
+**/.quasar/
+
+# Local dev overlay — WiFi creds, TLS certs, etc. (merged on first boot)
+data/additional_state/
+
+# ETag cache for scripts/update-zones.py (conditional GitHub fetch)
+scripts/.zones_etag
+
+# OTA signing — private key never committed; public key (.pub.pem) + the
+# generated main/ota_pubkey.h are committed so a clean checkout can verify.
+keys/ota_priv.pem
