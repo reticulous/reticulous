@@ -4,12 +4,15 @@
       <MenuBar />
     </q-header>
 
+    <!-- Settings pane. On a phone it sweeps in full-screen (overlay, full
+         width); on desktop it's a side rail that pushes the content. Both
+         still slide in from the left. -->
     <q-drawer
       :model-value="panelOpen"
       side="left"
       :width="drawerWidth"
-      behavior="desktop"
-      :overlay="false"
+      :behavior="compact ? 'mobile' : 'desktop'"
+      :overlay="compact"
       bordered
       class="settings-drawer bg-grey-10 text-white"
       :breakpoint="0"
@@ -76,6 +79,7 @@ import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 import { useMenuStore } from 'spangap-browser/stores/menu'
 import { useDeviceStore } from 'spangap-browser/stores/device'
+import { useCompact } from 'spangap-browser/lib/viewport'
 import { checkAuth, isAdminUnset } from 'spangap-browser/lib/auth'
 import { getSession, type SessionState } from 'spangap-browser/lib/webrtc-session'
 import MenuBar from 'spangap-browser/components/MenuBar.vue'
@@ -99,6 +103,7 @@ const $q = useQuasar()
 const router = useRouter()
 const menuStore = useMenuStore()
 const device = useDeviceStore()
+const compact = useCompact()
 const authChecked = ref(false)
 
 const panelOpen = computed(() => menuStore.activePanel !== null)
@@ -135,7 +140,9 @@ watchEffect(() => {
 })
 
 const drawerWidth = computed(() =>
-  Math.min(420, Math.max(280, Math.floor($q.screen.width * 0.38))),
+  compact.value
+    ? $q.screen.width
+    : Math.min(420, Math.max(280, Math.floor($q.screen.width * 0.38))),
 )
 
 function onDrawerToggle(val: boolean) {

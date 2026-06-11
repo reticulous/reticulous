@@ -1,4 +1,17 @@
 import { configure } from 'quasar/wrappers';
+import { readFileSync } from 'node:fs';
+
+// The browser-half straddles are pulled in as `file:` deps and npm-linked. They
+// ARE the code under development, so Vite must NOT pre-bundle them — a stale
+// optimized chunk is why an edit to e.g. spangap-browser wouldn't show up under
+// `spangap dev` until the cache was blown away. Excluding them from optimizeDeps
+// serves them as live source (proper HMR); their real npm deps still optimize.
+const pkg = JSON.parse(
+  readFileSync(new URL('./package.json', import.meta.url), 'utf8'),
+) as { dependencies?: Record<string, string> };
+const linkedStraddles = Object.entries(pkg.dependencies ?? {})
+  .filter(([, v]) => typeof v === 'string' && v.startsWith('file:'))
+  .map(([name]) => name);
 
 export default configure(() => {
   return {
@@ -14,6 +27,12 @@ export default configure(() => {
         // not from the symlinked package's location. preserveSymlinks keeps
         // the resolution context anchored to the symlink site.
         viteConf.resolve = { ...viteConf.resolve, preserveSymlinks: true };
+        // Keep the linked straddles out of dep pre-bundling so edits to them are
+        // picked up live (see linkedStraddles above).
+        viteConf.optimizeDeps = {
+          ...viteConf.optimizeDeps,
+          exclude: [...(viteConf.optimizeDeps?.exclude ?? []), ...linkedStraddles],
+        };
         if (viteConf.build) {
           viteConf.build.assetsDir = '';
           viteConf.build.cssCodeSplit = false;
@@ -35,6 +54,27 @@ export default configure(() => {
     },
     devServer: {
       open: false,
+      // Reverse-proxy the device so the dev server is same-origin with it: the
+      // session cookie, /auth, and the /webrtc signaling all behave exactly as
+      // when the SPA is served from the device. `spangap dev` passes the active
+      // device address in SPANGAP_DEVICE; without it (a bare `quasar dev`) there's
+      // no target and these routes 404 locally. secure:false accepts the device's
+      // self-signed TLS. (The WebDAV file editor talks to arbitrary /<path> URLs
+      // that can't be prefix-proxied without shadowing Vite's assets, so that one
+      // feature is unavailable under `spangap dev` — everything else works.)
+      proxy: (() => {
+        const device = process.env.SPANGAP_DEVICE
+        if (!device) return undefined
+        const target = `https://${device}`
+        const common = { target, changeOrigin: true, secure: false }
+        return {
+          '/auth': common,
+          '/state': common,
+          '/webrtc': { ...common, ws: true },
+          // checkAuth()'s X-Authenticated probe → the device root (see auth.ts).
+          '/__authcheck': { ...common, rewrite: () => '/' },
+        }
+      })(),
     },
     framework: {
       iconSet: 'svg-material-icons',
