@@ -1,0 +1,46 @@
+{
+  "name": "reticulous-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "quasar dev",
+    "build": "quasar build",
+    "deploy": "bash deploy.sh"
+  },
+  "dependencies": {
+    "@quasar/extras": "^1.17.0",
+    "@xterm/addon-fit": "^0.11.0",
+    "@xterm/xterm": "^6.0.0",
+    "acme": "file:../../acme/browser",
+    "duckdns": "file:../../duckdns/browser",
+    "iface-auto": "file:../../iface-auto/browser",
+    "iface-espnow": "file:../../iface-espnow/browser",
+    "iface-lora": "file:../../iface-lora/browser",
+    "iface-tcp": "file:../../iface-tcp/browser",
+    "lxmf": "file:../../lxmf/browser",
+    "nomad": "file:../../nomad/browser",
+    "pinia": "^3.0.4",
+    "quasar": "^2.17.0",
+    "register-service-worker": "^1.7.2",
+    "rns": "file:../../rns/browser",
+    "spangap-browser": "file:../../spangap-web/browser",
+    "spangap-net": "file:../../spangap-net/browser",
+    "sshd": "file:../../sshd/browser",
+    "upnp": "file:../../upnp/browser",
+    "vue": "^3.5.0",
+    "vue-router": "^4.4.0",
+    "wg": "file:../../wg/browser",
+    "workbox-precaching": "^7.4.0",
+    "workbox-routing": "^7.4.0",
+    "workbox-strategies": "^7.4.0"
+  },
+  "devDependencies": {
+    "@quasar/app-vite": "^2.1.0",
+    "@types/ws": "^8.18.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.7.0",
+    "workbox-build": "^7.4.0",
+    "vite": "^7.0.0"
+  }
+}

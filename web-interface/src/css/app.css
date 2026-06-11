@@ -1,0 +1,69 @@
+/* ── Global: no text selection on UI labels ── */
+.settings-panel, .menu-bar, .menu-dropdown {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ── Dropdown menus — white bg, black text, rounded ── */
+.menu-dropdown {
+  background: #fff !important;
+  color: #111 !important;
+  border-radius: 10px !important;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  padding: 4px 0;
+}
+.menu-dropdown .q-item {
+  min-height: 38px !important;
+  padding: 6px 18px !important;
+  font-size: 16px !important;
+  color: #111 !important;
+  border-radius: 6px;
+  margin: 0 4px;
+}
+.menu-dropdown .q-item:hover {
+  background: rgba(0,0,0,0.06);
+}
+.menu-dropdown .q-item--active,
+.menu-dropdown .menu-item-active {
+  background: rgba(0,0,0,0.08) !important;
+}
+.menu-dropdown .q-item.disabled,
+.menu-dropdown .q-item.disabled .q-item__section {
+  opacity: 1 !important;
+  color: #bbb !important;
+}
+
+/* ── Scrollable menu body ── */
+.menu-scroll-wrap {
+  overflow-y: auto;
+  position: relative;
+}
+.menu-scroll-wrap::-webkit-scrollbar {
+  width: 5px;
+}
+.menu-scroll-wrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+.menu-scroll-wrap::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.15);
+  border-radius: 4px;
+}
+.menu-scroll-wrap::-webkit-scrollbar-thumb:hover {
+  background: rgba(0,0,0,0.25);
+}
+
+/* Bottom fade hint when content overflows */
+.menu-scroll-fade {
+  display: none;
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 24px;
+  background: linear-gradient(transparent, rgba(255,255,255,0.9));
+  pointer-events: none;
+}
+.menu-scroll-wrap:has(:nth-child(8)) .menu-scroll-fade {
+  display: block;
+}

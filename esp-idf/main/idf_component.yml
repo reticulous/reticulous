@@ -1,0 +1,24 @@
+dependencies:
+  idf:
+    version: ">=5.5"
+
+  # Platform straddles (spangap-core/-net/-web/-lcd, wg, upnp, duckdns, acme)
+  # and reticulous feature straddles (rns, iface-tcp/-auto/-espnow/-lora, lxmf,
+  # nomad, maps) are NOT listed here. They're declared in straddle.yaml's
+  # `additional_installs:` and staged at build time by `spangap build` into
+  # staging/components/<short>/, picked up via EXTRA_COMPONENT_DIRS. Listing
+  # them here too would double-stage them under the manager's namespaced
+  # `managed_components/<org>__<repo>/` form, causing duplicate-symbol link errors.
+  #
+  # The component manager doesn't recurse into locally-staged components'
+  # dependencies, so THIS buildable has to surface every third-party managed dep
+  # any staged straddle (or --with'd board) transitively uses:
+  #   - radiolib            → iface-lora's LoRa transport
+  #   - esp_lcd_touch_gt911 → the hw-tdeck board's on-device-UI input HAL. This
+  #     is board-specific; a heltec build fetches it but never links it. Until
+  #     the build surfaces a --with'd board's managed deps automatically, it
+  #     lives here.
+  jgromes/radiolib:
+    version: "^7.0.0"
+  espressif/esp_lcd_touch_gt911:
+    version: "^1.1"

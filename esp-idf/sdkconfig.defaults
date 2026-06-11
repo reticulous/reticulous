@@ -1,0 +1,15 @@
+# reticulous app identity. Board HARDWARE — flash size, PSRAM oct/quad, the
+# display — is NOT set here: it comes from the board straddle added with `--with`
+# via its straddle.yaml `kconfig:` block (collected into
+# staging/sdkconfig.spangap-fragments). Anything set in THIS file would OVERRIDE
+# those board fragments (the buildable's sdkconfig.defaults is layered last and
+# wins), so keep it to genuinely app-wide, board-agnostic values only.
+#
+# Spangap's mandated platform settings (PSRAM core, mbedTLS, lwIP buffers, log,
+# FreeRTOS stats, partition table custom, ChaCha20-Poly1305, PM, etc.) are
+# layered in by spangap-core's bootstrap.cmake from sdkconfig.defaults.spangap.
+
+# Immutable project identity (s.sys.project; mismatch triggers a factory reset
+# of /state). The user-visible name/banner are firmware identity now — set via
+# straddle.yaml's stub/display_name/banner (→ CONFIG_SPANGAP_FW_*), not here.
+CONFIG_SPANGAP_PROJECT_NAME="reticulous"

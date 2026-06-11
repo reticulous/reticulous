@@ -6,3 +6,16 @@
 __pycache__/
 *.pyc
 *.pyo
+
+# Build artifacts (spangap-generated)
+esp-idf/build/
+esp-idf/sdkconfig
+esp-idf/sdkconfig.old
+esp-idf/staging/
+esp-idf/managed_components/
+web-interface/node_modules/
+web-interface/dist/
+web-interface/.quasar/
+
+# Generated each build (browser straddle dispatcher)
+web-interface/src/boot/*.gen.ts
