@@ -33,8 +33,6 @@ platforms: [idf]
 #   - The on-device LCD UI is NOT listed here either — it rides on the board: a
 #     board with a screen (hw-tdeck) additional-installs spangap-lcd itself, so
 #     a screenless board (hw-heltecv4) builds headless with no extra flags.
-#   - sshd is now opt-in (it used to be in the boards' menus): add it with
-#     `spangap build … --with spangap/sshd`.
 additional_installs:
   - reticulous/rns
   - reticulous/iface-lora
