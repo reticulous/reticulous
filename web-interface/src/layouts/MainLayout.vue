@@ -68,6 +68,12 @@
           title="Nomad Browser"
           @update:visible="v => nomadVisible = v"
         />
+        <ViewerWindow
+          :visible="viewerWebVisible"
+          :focus-token="viewerWebFocus"
+          title="Viewer"
+          @update:visible="v => viewerWebVisible = v"
+        />
       </UsableArea>
     </q-page-container>
   </q-layout>
@@ -92,11 +98,13 @@ import NodesWindow from 'rns/panels/NodesWindow.vue'
 import AnnouncesWindow from 'lxmf/panels/AnnouncesWindow.vue'
 import MessagesWindow from 'lxmf/panels/MessagesWindow.vue'
 import NomadWindow from 'nomad/panels/NomadWindow.vue'
+import ViewerWindow from 'viewer/panels/ViewerWindow.vue'
 import { cliVisible, logVisible, cliFocus, logFocus } from 'spangap-browser/modules/advanced'
 import { mapVisible, nodesVisible } from 'rns/modules/rnsd'
 import { messagesVisibleById, messagesFocusById, announcesVisible,
          useLxmf, FALLBACK_ID } from 'lxmf/modules/lxmf'
 import { nomadVisible, nomadFocus } from 'nomad/modules/nomad'
+import { viewerWebVisible, viewerWebFocus } from 'viewer/modules/viewer'
 import { startLogStream, installConsoleHooks } from 'spangap-browser/stores/log'
 
 const $q = useQuasar()

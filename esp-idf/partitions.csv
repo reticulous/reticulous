@@ -4,5 +4,5 @@
 #
 # Name,    Type, SubType, Offset,    Size,      Flags
 nvs,       data, nvs,     0x00009000, 0x00005000,
-app,       app,  factory, 0x00010000, 0x00310000,
-fixed,     data, spiffs,  0x00320000, 0x00064000, readonly
+app,       app,  factory, 0x00010000, 0x00330000,
+fixed,     data, spiffs,  0x00340000, 0x00065000, readonly
