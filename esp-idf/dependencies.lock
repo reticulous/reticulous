@@ -107,6 +107,6 @@ direct_dependencies:
 - jgromes/radiolib
 - joltwallet/littlefs
 - lvgl/lvgl
-manifest_hash: c2be89254ce04c632984785853173477be67a93281207b4fefa1b99c5d14922b
+manifest_hash: ca276a84799cebfc1c22f2257bc2c06517f025aba64ac3c1b3fbf8e9552552cc
 target: esp32s3
 version: 2.0.0
