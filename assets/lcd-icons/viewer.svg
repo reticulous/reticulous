@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-  <!-- Rounded tile (transparent corners exercise the RGB565A8 alpha channel) -->
-  <rect x="4" y="4" width="120" height="120" rx="26" fill="#1565c0"/>
-  <!-- Globe: faint "ocean" disc, then a crisp white wireframe (outline, equator
-       + two parallels, two meridians + the central meridian line) -->
-  <circle cx="64" cy="64" r="39" fill="#ffffff" fill-opacity="0.16"/>
-  <g stroke="#ffffff" stroke-width="4.5" fill="none" stroke-linecap="round" opacity="0.98">
-    <circle cx="64" cy="64" r="39"/>
-    <line x1="25" y1="64" x2="103" y2="64"/>
-    <ellipse cx="64" cy="64" rx="39" ry="15"/>
-    <ellipse cx="64" cy="64" rx="39" ry="31"/>
-    <ellipse cx="64" cy="64" rx="15" ry="39"/>
-    <line x1="64" y1="25" x2="64" y2="103"/>
-  </g>
+  <!-- Red question mark, sized to fill the tile (transparent elsewhere → alpha
+       channel of RGB565A8). The viewer is a "what's this?" help/Info reader. The
+       dot is kept clear of the stem so it reads as a separate dot at icon size. -->
+  <path d="M 35 45 a 29 29 0 1 1 46 22 c -11 10 -17 14 -17 19"
+        fill="none" stroke="#e53935" stroke-width="16"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="64" cy="112" r="11" fill="#e53935"/>
 </svg>
