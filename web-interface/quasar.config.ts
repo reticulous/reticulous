@@ -96,8 +96,8 @@ export default configure(() => {
           description: 'Reticulum mesh networking for the masses!',
           display: 'standalone',
           orientation: 'any',
-          background_color: '#1a1a2e',
-          theme_color: '#1a1a2e',
+          background_color: '#1d1d1d',
+          theme_color: '#1d1d1d',
           icons: [
             { src: 'icons/icon-128x128.png', sizes: '128x128', type: 'image/png' },
             { src: 'icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },

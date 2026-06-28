@@ -1,124 +1,109 @@
 # reticulous
 
-## What is this?
-
 **reticulous** is a Reticulum / LXMF / Nomad Network device built on the
 [spangap](https://github.com/spangap) platform. It brings Mark Qvist's
-[Reticulum Network Stack](https://reticulum.network) (and the LXMF
-messaging and Nomad Network text-web layers that sit on it) to a single
-hand-held ESP32-S3 device with LoRa, WiFi, GPS, a screen, and a
-keyboard.
+[Reticulum Network Stack](https://reticulum.network) (and the LXMF messaging
+and Nomad Network text-web layers that sit on it) to a single hand-held
+ESP32-S3 device with LoRa, WiFi, GPS, a screen, and a keyboard.
 
-The first hardware target is the **LilyGo T-Deck Plus** (ESP32-S3FN16R8,
-8 MB octal PSRAM, 16 MB flash, SX1262 LoRa, GPS, 320×240 LCD, QWERTY,
-trackball).
+This repository — `reticulous/reticulous` — is the **buildable**: the straddle
+that assembles a device image. It carries no firmware or board HAL of its own.
+It ships the browser SPA, the LittleFS data image, and the LCD launcher icons,
+and pulls in the whole reticulous straddle family plus the spangap IP/web
+platform. You build it *with* a board.
+
+## Why Reticulum?
+
+Reticulum is a cryptography-based networking stack for resilient,
+self-configuring networks over anything that can carry packets — LoRa, packet
+radio, plain TCP/IP, even a serial wire. There is no central authority and no
+assigned addresses: every node is a self-generated cryptographic identity,
+links are end-to-end encrypted by default, and the network keeps routing over
+cheap, low-bandwidth, intermittently-connected links where conventional stacks
+fall over. reticulous ports that stack — and the LXMF messenger and the Nomad
+Network page browser — onto a small hand-held device that lives mostly off-grid.
 
 ## What this org owns
 
-reticulous is decomposed into **straddles** — dual-side (firmware +
-browser) building blocks that compose into a final device image.
-This org holds the reticulous family of straddles; the
-[spangap](https://github.com/spangap) org holds the platform straddles
-the device builds on.
+reticulous is decomposed into **straddles** — dual-side (firmware + browser)
+building blocks that compose into a final device image. This org holds the
+reticulous family; the [spangap](https://github.com/spangap) org holds the
+platform straddles the device builds on.
 
-| Repo                                                                 | What it adds                                                       |
-| -------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| [rns](https://github.com/reticulous/rns)     | RNS protocol core (identity, path table, Links, Resources) + the µR fork |
-| [iface-tcp](https://github.com/reticulous/iface-tcp)       | RNS-over-TCP transport                                             |
-| [iface-auto](https://github.com/reticulous/iface-auto)     | AutoInterface transport (IPv6 link-local multicast + unicast UDP)  |
-| [iface-espnow](https://github.com/reticulous/iface-espnow) | RNS-over-ESP-NOW transport (long-range PHY, no IP stack)           |
-| [iface-lora](https://github.com/reticulous/iface-lora)     | SX1262 LoRa transport with RNode on-air framing                    |
-| [lxmf](https://github.com/reticulous/lxmf)     | LXMF messaging (multi-identity, Link + Resource transfer)          |
-| [nomad](https://github.com/reticulous/nomad)   | Nomad Network page client                                          |
-| [maps](https://github.com/reticulous/maps)                           | Offline RGB565 slippy-map viewer (LCD + GPS, no RNS dep)           |
-| [reticulous](https://github.com/reticulous/reticulous) | The app/buildable: assembles the device image (browser SPA, LittleFS data, LCD icons) and pulls in the whole family + the spangap platform |
-| [hw-tdeck](https://github.com/reticulous/hw-tdeck)   | Board HAL straddle: T-Deck Plus board (display/touch/keyboard input HAL, GNSS, RTC) + its pin maps/hardware kconfig |
-| [hw-heltecv4](https://github.com/reticulous/hw-heltecv4) | Board HAL straddle: Heltec WiFi LoRa 32 V4 (Vext rail, LoRa CS park) + its pin maps/hardware kconfig |
+| Repo | What it adds |
+| --- | --- |
+| [rns](https://github.com/reticulous/rns) | RNS protocol core (identity, path table, Transport, Links, Resources) + the microReticulum fork |
+| [iface-tcp](https://github.com/reticulous/iface-tcp) | RNS-over-TCP interface (outbound dials + inbound server, per-iface IFAC) |
+| [iface-auto](https://github.com/reticulous/iface-auto) | AutoInterface — zero-config LAN interface (IPv6 link-local multicast + unicast UDP) |
+| [iface-espnow](https://github.com/reticulous/iface-espnow) | RNS-over-ESP-NOW interface (long-range PHY, no IP stack) |
+| [iface-lora](https://github.com/reticulous/iface-lora) | LoRa interface via RadioLib (multiple SX126x/SX127x/SX128x/LR11xx radios) with LoRa split framing |
+| [lxmf](https://github.com/reticulous/lxmf) | LXMF messaging (multi-identity, Link + Resource transfer, per-contact threads) |
+| [nomad](https://github.com/reticulous/nomad) | Nomad Network page client |
+| [maps](https://github.com/reticulous/maps) | Offline slippy-map viewer (LCD + GPS, no RNS dep) |
+| [reticulous](https://github.com/reticulous/reticulous) | **The buildable** — assembles the device image (browser SPA, LittleFS data, LCD icons) and pulls in the whole family + the spangap platform |
+| [hw-tdeck](https://github.com/reticulous/hw-tdeck) | Board HAL: LilyGo T-Deck Plus (display/touch/keyboard input HAL, GNSS, RTC) + pin maps and hardware kconfig |
+| [hw-heltecv4](https://github.com/reticulous/hw-heltecv4) | Board HAL: Heltec WiFi LoRa 32 V4 (Vext rail, LoRa CS park) + pin maps and hardware kconfig |
 
-The buildable is **`reticulous/reticulous`**; the `hw-*` straddles are
-board HALs that don't decide what the device does — they only make a
-board usable. You build the app *with* a board:
+The `iface-*` straddles are RNS **interfaces** — they carry Reticulum packets to
+and from the outside world and register with `rnsd`'s Transport. ("Interface" is
+the Reticulum term; they are not the `Transport` engine itself, which lives in
+`rns`.)
+
+## Building
+
+The buildable is `reticulous/reticulous`. The `hw-*` straddles are board HALs
+that don't decide what the device does — they only make a board usable. Build
+the buildable *with* a board:
 
 ```sh
 spangap build reticulous/reticulous --with reticulous/hw-tdeck      # T-Deck Plus (has a screen → on-device UI)
 spangap build reticulous/reticulous --with reticulous/hw-heltecv4   # Heltec V4 (headless)
 ```
 
-`reticulous/reticulous` pulls in the whole reticulous family plus the
-spangap IP/web platform; the board supplies pin maps, bring-up hooks and
-hardware kconfig (flash size, PSRAM mode, display), and a board with a
-screen additionally installs the on-device LCD UI itself.
+`reticulous/reticulous` pulls in the whole reticulous family plus the spangap
+IP/web platform; the board supplies pin maps, bring-up hooks, and hardware
+kconfig (flash size, PSRAM mode, display). A board with a screen additionally
+installs the on-device LCD UI itself, so a screenless board builds headless with
+no extra flags.
 
-## Why Reticulum?
-
-Reticulum is a cryptography-based networking stack for building
-resilient, self-configuring networks over anything that can carry
-packets — LoRa, packet radio, plain TCP/IP, even a serial wire. There
-is no central authority and no assigned addresses: every node is a
-self-generated cryptographic identity, links are end-to-end encrypted
-by default, and the network keeps routing over cheap, low-bandwidth,
-intermittently-connected links where conventional stacks fall over.
-
-reticulous is a port of that stack — and of the LXMF messenger and the
-Nomad Network page browser — onto a small hand-held device that lives
-mostly off-grid.
+Every component starts automatically when it is in the build — there is no
+hand-written init sequence. The whole entry point is generated by the build from
+each staged straddle's declared hooks (see [INTERNALS.md](INTERNALS.md)).
 
 ## How reticulous fits on spangap
 
-The reticulous family is **the first serious application** built on
-the spangap platform — it drives spangap's API and tests every assumption
-the platform makes. Most reticulous straddles depend on a few spangap
-straddles each (spangap-core for the base runtime, spangap-net for the
-IP transports, spangap-web for the browser SPA, spangap-lcd for the
-on-device LVGL UI). The buildable straddle (`reticulous/reticulous`)
-pulls in everything; a board straddle (`hw-tdeck` / `hw-heltecv4`) is
-added with `--with` to supply the hardware.
+The reticulous family is the first serious application built on the spangap
+platform — it drives spangap's API and exercises every assumption the platform
+makes. Most reticulous straddles depend on a few spangap straddles each
+(spangap-core for the base runtime, spangap-net for the IP interfaces,
+spangap-web for the browser SPA, spangap-lcd for the on-device LVGL UI). The
+buildable pulls in everything; a board straddle is added with `--with` to supply
+the hardware.
 
-Anything *platform-wide* — ITS, storage, the unified filesystem, the
-browser shell, the WebRTC plumbing, remote access (ACME / DuckDNS /
-UPnP / WireGuard) — lives in the spangap org and is documented at
-[github.com/spangap/spangap](https://github.com/spangap/spangap). Read
-that side first if you want to understand the substrate; come back
-here for the reticulous-specific protocol pieces and the T-Deck app.
-
-## Status
-
-Past scaffold. The µR fork is ported and patched, and the per-task
-firmware is real and hardware-verified against upstream Reticulum /
-LXMF — `rnsd` (identity, Transport, path table) and `lxmf` (messaging,
-per-contact threads, Link + Resource transfer) are the large modules,
-with `tcp` / `auto` / `lora` / `espnow` transports live. The browser
-SPA is built out: per-transport settings panes, status floating
-windows, full LXMF chat UI. The on-device LVGL UI is built out: LXMF
-messenger, Nomad browser, offline maps.
-
-The authoritative architecture + rollout plan lives in
-[hw-tdeck/docs/component-plan.md](https://github.com/reticulous/hw-tdeck/tree/main/docs/component-plan.md)
-— several decisions there are non-obvious; read it before working on
-anything sizeable.
+Anything platform-wide — ITS, storage, the unified filesystem, the browser
+shell, the WebRTC plumbing, remote access (ACME / DuckDNS / UPnP / WireGuard) —
+lives in the spangap org and is documented there. Read that side first to
+understand the substrate; come back here for the reticulous-specific protocol
+pieces and the device image.
 
 ## Hardware
 
-- **LilyGo T-Deck Plus** — primary target. ESP32-S3FN16R8 (16 MB
-  flash, 8 MB octal PSRAM), SX1262 LoRa, 320×240 LCD, QWERTY,
-  trackball, GPS (Quectel L76K or u-blox MIA-M10Q depending on batch).
-- Other ESP32-S3 + SX1262 boards with PSRAM should be feasible with a
-  new board-HAL straddle. The Heltec WiFi LoRa 32 V3 was evaluated and
-  rejected — no PSRAM.
+- **LilyGo T-Deck Plus** — primary target. ESP32-S3FN16R8 (16 MB flash, 8 MB
+  octal PSRAM), SX1262 LoRa, 320×240 LCD, QWERTY, trackball, GPS (Quectel L76K
+  or u-blox MIA-M10Q depending on batch).
+- **Heltec WiFi LoRa 32 V4** — headless secondary target.
+- Other ESP32-S3 + LoRa boards with PSRAM are feasible with a new board-HAL
+  straddle. PSRAM is required (the Heltec V3, which has none, does not qualify).
 
-## On Claude Code
+## Security
 
-The overwhelming majority of reticulous (and spangap) has been written
-by Claude Code, over about a month. A project of this scope would
-have been an order of magnitude more work for one person without LLMs.
-That said, every public header has been read and iterated on by hand,
-and almost every architectural decision is human. The browser code is
-mostly Claude's so far. The doc files (this one included) are written
-to stay human-readable and to help further development, whether by
-humans or AI tools.
+The design has had dedicated attention on security and is intended to be
+securable, but the code as it stands should not be relied on where a life
+depends on it being unhackable.
 
-### Security note
+## Read next
 
-The design has had separate context spent on security and is at least
-*planned* to be securable, but this code as it stands today should not
-be used where your life depends on it being unhackable.
+- [INTERNALS.md](INTERNALS.md) — the assembly/maintainer reference: the
+  `additional_installs` cascade and `--without` semantics, the build-generated
+  entry point, partition/flash-size generation, the data image and SPA shell,
+  and the test harness.

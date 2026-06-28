@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!-- Rounded tile (transparent corners exercise the RGB565A8 alpha channel) -->
+  <rect x="4" y="4" width="120" height="120" rx="26" fill="#455a64"/>
+  <!-- Classic red map marker: round head, point down, with a white hole. A soft
+       ground shadow ellipse anchors the point. -->
+  <ellipse cx="64" cy="106" rx="15" ry="5" fill="#000000" fill-opacity="0.28"/>
+  <path d="M64 22
+           C46.3 22 32 36.3 32 54
+           C32 78 64 104 64 104
+           C64 104 96 78 96 54
+           C96 36.3 81.7 22 64 22 Z"
+        fill="#e53935" stroke="#ffffff" stroke-width="3"/>
+  <circle cx="64" cy="53" r="12" fill="#ffffff"/>
+</svg>

@@ -1,28 +1,26 @@
 <template>
   <q-layout v-if="authChecked" view="hHh Lpr fFf" class="main-layout">
     <q-header class="bg-dark text-white no-shadow app-header">
-      <MenuBar />
+      <q-toolbar class="topbar" style="min-height: 38px">
+        <q-toolbar-title class="topbar-title">{{ progName }}</q-toolbar-title>
+        <!-- Power button → Log out. Inline SVG (the SPA uses Quasar's
+             svg-material-icons set, so string icon names don't render as a
+             webfont). Shown only when auth is active. -->
+        <q-btn v-if="authActive" flat dense round aria-label="Log out" @click="onLogout">
+          <svg class="power-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3.5 V11.5" />
+            <path d="M7.3 6.5 a7 7 0 1 0 9.4 0" />
+          </svg>
+          <q-tooltip>Log Out</q-tooltip>
+        </q-btn>
+      </q-toolbar>
     </q-header>
 
-    <!-- Settings pane. On a phone it sweeps in full-screen (overlay, full
-         width); on desktop it's a side rail that pushes the content. Both
-         still slide in from the left. -->
-    <q-drawer
-      :model-value="panelOpen"
-      side="left"
-      :width="drawerWidth"
-      :behavior="compact ? 'mobile' : 'desktop'"
-      :overlay="compact"
-      bordered
-      class="settings-drawer bg-grey-10 text-white"
-      :breakpoint="0"
-      @update:model-value="onDrawerToggle"
-    >
-      <SettingsPanel />
-    </q-drawer>
-
     <q-page-container class="main-page-container">
-      <UsableArea>
+      <!-- No click-outside scrim: the settings pane now lives inside the
+           Settings app window, which owns its own close/back chrome. -->
+      <UsableArea :dismiss-overlay="false">
         <router-view />
         <TerminalWindow
           :visible="cliVisible"
@@ -57,11 +55,6 @@
           :title="w.displayName ? `LXMF Messages - ${w.displayName}` : 'LXMF Messages'"
           @update:visible="v => (messagesVisibleById[w.n] = v)"
         />
-        <AnnouncesWindow
-          :visible="announcesVisible"
-          title="Announces"
-          @update:visible="v => announcesVisible = v"
-        />
         <NomadWindow
           :visible="nomadVisible"
           :focus-token="nomadFocus"
@@ -74,47 +67,54 @@
           title="Viewer"
           @update:visible="v => viewerWebVisible = v"
         />
+        <SettingsWindow
+          :visible="settingsVisible"
+          :focus-token="settingsFocus"
+          @update:visible="v => settingsVisible = v"
+        />
+        <Dock />
       </UsableArea>
     </q-page-container>
+    <ConnectionOverlay />
   </q-layout>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, onUnmounted, watchEffect } from 'vue'
-import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
-import { useMenuStore } from 'spangap-browser/stores/menu'
 import { useDeviceStore } from 'spangap-browser/stores/device'
-import { useCompact } from 'spangap-browser/lib/viewport'
-import { checkAuth, isAdminUnset } from 'spangap-browser/lib/auth'
+import { checkAuth, isAdminUnset, authLogout } from 'spangap-browser/lib/auth'
 import { getSession, type SessionState } from 'spangap-browser/lib/webrtc-session'
-import MenuBar from 'spangap-browser/components/MenuBar.vue'
-import SettingsPanel from 'spangap-browser/components/SettingsPanel.vue'
 import TerminalWindow from 'spangap-browser/components/TerminalWindow.vue'
 import LogWindow from 'spangap-browser/components/LogWindow.vue'
 import UsableArea from 'spangap-browser/components/UsableArea.vue'
+import Dock from 'spangap-browser/components/Dock.vue'
+import SettingsWindow from 'spangap-browser/components/SettingsWindow.vue'
+import ConnectionOverlay from 'spangap-browser/components/ConnectionOverlay.vue'
+import { settingsVisible, settingsFocus } from 'spangap-browser/modules/advanced'
 import MapWindow from 'rns/panels/MapWindow.vue'
 import NodesWindow from 'rns/panels/NodesWindow.vue'
-import AnnouncesWindow from 'lxmf/panels/AnnouncesWindow.vue'
 import MessagesWindow from 'lxmf/panels/MessagesWindow.vue'
 import NomadWindow from 'nomad/panels/NomadWindow.vue'
 import ViewerWindow from 'viewer/panels/ViewerWindow.vue'
 import { cliVisible, logVisible, cliFocus, logFocus } from 'spangap-browser/modules/advanced'
 import { mapVisible, nodesVisible } from 'rns/modules/rnsd'
-import { messagesVisibleById, messagesFocusById, announcesVisible,
+import { messagesVisibleById, messagesFocusById,
          useLxmf, FALLBACK_ID } from 'lxmf/modules/lxmf'
 import { nomadVisible, nomadFocus } from 'nomad/modules/nomad'
 import { viewerWebVisible, viewerWebFocus } from 'viewer/modules/viewer'
 import { startLogStream, installConsoleHooks } from 'spangap-browser/stores/log'
 
-const $q = useQuasar()
 const router = useRouter()
-const menuStore = useMenuStore()
 const device = useDeviceStore()
-const compact = useCompact()
 const authChecked = ref(false)
+const authActive = ref(false)
 
-const panelOpen = computed(() => menuStore.activePanel !== null)
+async function onLogout() {
+  try { await authLogout() } catch { /* ignore */ }
+  window.location.reload()   /* drop all in-memory session/UI state, re-run auth */
+}
+
 
 /* One Messages window per usable LXMF identity; a single FALLBACK_ID window
  * when there are none (so the "create an identity" guidance stays reachable). */
@@ -147,36 +147,6 @@ watchEffect(() => {
     ? `${prog} - ${host}` : prog
 })
 
-const drawerWidth = computed(() =>
-  compact.value
-    ? $q.screen.width
-    : Math.min(420, Math.max(280, Math.floor($q.screen.width * 0.38))),
-)
-
-function onDrawerToggle(val: boolean) {
-  if (!val) menuStore.closePanel()
-}
-
-/* Dismiss the settings pane on any click outside it, while letting the click
- * fall through to whatever it hit (no scrim, no preventDefault — it cascades).
- * The menu bar and its dropdowns are exempt so they keep driving pane state
- * (switching panes from the menu must not slam the new pane shut). */
-function onDocClick(e: MouseEvent) {
-  if (!panelOpen.value) return
-  const t = e.target as HTMLElement | null
-  if (!t) return
-  // Teleported overlays (dialogs, menus, tooltips) render outside the layout
-  // root — e.g. a settings pane's "Add Peer" q-dialog lives under <body>. Only
-  // a click *inside* the layout, but outside the pane and the menu bar, should
-  // dismiss the pane. (The menu bar is exempt so menu-driven pane switching
-  // isn't slammed shut.)
-  if (!t.closest('.q-layout')) return
-  if (t.closest('.settings-drawer') || t.closest('.menu-bar')) return
-  // Capture phase + Vue's deferred DOM flush means the drawer collapse happens
-  // after this click resolves on its real target — so the click still lands.
-  menuStore.closePanel()
-}
-
 const session = getSession()
 const sessionState = ref<SessionState>(session.state)
 let sessionUnsub: (() => void) | null = null
@@ -187,24 +157,25 @@ onMounted(async () => {
     if (unset) { router.replace('/setup'); return }
     const auth = await checkAuth()
     if (auth.enabled && !auth.realm) { router.replace('/login'); return }
+    authActive.value = auth.enabled
   } catch { /* proceed */ }
   authChecked.value = true
   sessionUnsub = session.onStateChange((s) => { sessionState.value = s })
   device.connect()
   startLogStream()
   installConsoleHooks()
-  document.addEventListener('click', onDocClick, true)
 })
 
 onUnmounted(() => {
   if (sessionUnsub) { sessionUnsub(); sessionUnsub = null }
-  document.removeEventListener('click', onDocClick, true)
 })
 </script>
 
 <style scoped>
 .main-layout {
-  height: 100vh;
+  height: 100vh;       /* fallback for browsers without dvh */
+  height: 100dvh;      /* dynamic viewport: excludes the mobile URL/toolbar chrome,
+                          so the bottom Dock isn't pushed below the visible fold */
   overflow: hidden;
 }
 .main-page-container {
@@ -212,6 +183,11 @@ onUnmounted(() => {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+.power-icon {
+  width: 20px;
+  height: 20px;
+  display: block;
 }
 .app-header {
   box-shadow: none !important;

@@ -19,3 +19,7 @@ web-interface/.quasar/
 
 # Generated each build (browser straddle dispatcher)
 web-interface/src/boot/*.gen.ts
+
+# Generated each build (staged SPA bundle + build stamp baked into the data partition)
+data/webroot/
+data/build_times

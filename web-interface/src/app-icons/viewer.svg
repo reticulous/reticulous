@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!-- Red question mark, sized to fill the tile (transparent elsewhere → alpha
+       channel of RGB565A8). The viewer is a "what's this?" help/Info reader. The
+       dot is kept clear of the stem so it reads as a separate dot at icon size. -->
+  <path d="M 35 45 a 29 29 0 1 1 46 22 c -11 10 -17 14 -17 19"
+        fill="none" stroke="#e53935" stroke-width="16"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="64" cy="112" r="11" fill="#e53935"/>
+</svg>
