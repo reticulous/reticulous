@@ -26,6 +26,7 @@
     "spangap-browser": "file:../../spangap-web/browser",
     "spangap-net": "file:../../spangap-net/browser",
     "sshd": "file:../../sshd/browser",
+    "viewer": "file:../../viewer/browser",
     "vue": "^3.5.0",
     "vue-router": "^4.4.0",
     "wg": "file:../../wg/browser",
