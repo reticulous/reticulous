@@ -14,7 +14,7 @@
 schema_version: 1
 name: reticulous/reticulous
 prefix: reticulous
-version: 0.1.0
+version: 0.0.0
 # Firmware identity (immutable; exposed read-only to the browser as fw.*).
 # reticulous is the built straddle here, so it wins these over every dep.
 stub: reticulous
