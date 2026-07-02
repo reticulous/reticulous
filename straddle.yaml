@@ -35,6 +35,7 @@ platforms: [idf]
 #     a screenless board (hw-heltecv4) builds headless with no extra flags.
 additional_installs:
   - reticulous/rns
+  - reticulous/rnsh
   - reticulous/iface-lora
   - reticulous/iface-tcp
   - reticulous/iface-auto
