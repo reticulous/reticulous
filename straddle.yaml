@@ -9,8 +9,8 @@
 #
 # Build it WITH a board straddle — the board supplies the pin maps, the board
 # bring-up hooks, and the hardware kconfig (flash size, PSRAM mode, display):
-#   spangap build reticulous/reticulous --with reticulous/hw-tdeck
-#   spangap build reticulous/reticulous --with reticulous/hw-heltecv4
+#   spangap build reticulous/reticulous --with spangap/hw-tdeck
+#   spangap build reticulous/reticulous --with spangap/hw-heltecv4
 schema_version: 1
 name: reticulous/reticulous
 prefix: reticulous

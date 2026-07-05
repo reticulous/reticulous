@@ -41,8 +41,8 @@ platform straddles the device builds on.
 | [nomad](https://github.com/reticulous/nomad) | Nomad Network page client |
 | [maps](https://github.com/reticulous/maps) | Offline slippy-map viewer (LCD + GPS, no RNS dep) |
 | [reticulous](https://github.com/reticulous/reticulous) | **The buildable** — assembles the device image (browser SPA, LittleFS data, LCD icons) and pulls in the whole family + the spangap platform |
-| [hw-tdeck](https://github.com/reticulous/hw-tdeck) | Board HAL: LilyGo T-Deck Plus (display/touch/keyboard input HAL, GNSS, RTC) + pin maps and hardware kconfig |
-| [hw-heltecv4](https://github.com/reticulous/hw-heltecv4) | Board HAL: Heltec WiFi LoRa 32 V4 (Vext rail, LoRa CS park) + pin maps and hardware kconfig |
+| [hw-tdeck](https://github.com/spangap/hw-tdeck) | Board HAL: LilyGo T-Deck Plus (display/touch/keyboard input HAL, GNSS, RTC) + pin maps and hardware kconfig |
+| [hw-heltecv4](https://github.com/spangap/hw-heltecv4) | Board HAL: Heltec WiFi LoRa 32 V4 (Vext rail, LoRa CS park) + pin maps and hardware kconfig |
 
 The `iface-*` straddles are RNS **interfaces** — they carry Reticulum packets to
 and from the outside world and register with `rnsd`'s Transport. ("Interface" is
@@ -56,8 +56,8 @@ that don't decide what the device does — they only make a board usable. Build
 the buildable *with* a board:
 
 ```sh
-spangap build reticulous/reticulous --with reticulous/hw-tdeck      # T-Deck Plus (has a screen → on-device UI)
-spangap build reticulous/reticulous --with reticulous/hw-heltecv4   # Heltec V4 (headless)
+spangap build reticulous/reticulous --with spangap/hw-tdeck      # T-Deck Plus (has a screen → on-device UI)
+spangap build reticulous/reticulous --with spangap/hw-heltecv4   # Heltec V4 (headless)
 ```
 
 `reticulous/reticulous` pulls in the whole reticulous family plus the spangap
