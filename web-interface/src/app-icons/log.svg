@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"
-     stroke="#eef3f8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-  <!-- A document of log lines -->
-  <rect x="11" y="7" width="42" height="50" rx="6"/>
-  <line x1="20" y1="21" x2="44" y2="21"/>
-  <line x1="20" y1="31" x2="44" y2="31"/>
-  <line x1="20" y1="41" x2="36" y2="41"/>
-</svg>

@@ -143,19 +143,37 @@ hosts the platform baseline windows (CLI, System Log, Settings from
   straddle's `browser_register:` entry (`registerNet`, `registerRnsd`,
   `registerLora`, `registerTcp`, …) in init order, and carries
   `GENERATED_PANELS` (the declarative `settings:` descriptors) + `APP_ICONS`
-  (the launcher SVGs for the bottom Dock).
+  (the launcher SVGs for the bottom Dock). Each `browser_register:` entry is a
+  `call:` (the `registerXxx` hook name) plus an optional `module:` — the import
+  path inside the package, needed only when the browser entry file's name
+  differs from the repo, e.g. `rns → modules/rnsd`, `iface-tcp → modules/tcp`;
+  `lxmf`/`nomad` omit it and default to `modules/<repo>`. So declaring
+  `browser_register:` in a straddle's `straddle.yaml` is the *only* step to
+  surface its UI — no `straddles.gen.ts` and no `modules.ts` edit.
 - `web-interface/src/boot/modules.ts` loads it once
   (`registerStraddles()`), wrapped by the spangap baseline (`registerSystem` /
   `registerAdvanced`). It is hand-maintained only for the baseline; the staged
   registrations flow through `straddles.gen.ts`.
 - The straddle browser halves are pulled in as `file:../../<straddle>/browser`
   npm dependencies in `package.json`. That dependency list is **auto-maintained
-  by spangap-inside** each build and the packages are npm-linked from the
-  staged set — a fresh checkout builds without manual symlinks. Do not
-  hand-edit the `file:` dependency block.
+  by spangap-inside** (`write_browser_dispatch`) each build and the packages are
+  npm-linked from the staged set — a fresh checkout, or a post-`reallyclean`
+  tree, builds without manual symlinks. Do not hand-edit the `file:` dependency
+  block: `write_browser_dispatch` also *prunes* any `file:../../<k>/browser`
+  entry whose straddle does not declare `browser_register:`, so a hand-added dep
+  is silently removed on the next build.
 
 `web-interface/src/pages/IndexPage.vue` is a placeholder landing page; the live
 UI surfaces are the per-straddle panels and windows the registrations install.
+
+**HISTORY (retired 2026-06).** The mesh family used to be hand-imported in
+`modules.ts` while *not* declaring `browser_register:`, so their `file:` deps
+were never in `package.json` (and would have been pruned if added). They
+resolved only through orphan `node_modules` symlinks that happened to survive
+incremental builds; a `reallyclean` wiped those, and the next build failed in
+Vite with e.g. `failed to resolve import 'rns/modules/rnsd'`. Converting the
+family to `browser_register:` (so the deps are generated and npm-linked)
+retired that fragile hack; do not reintroduce hand-imports.
 
 ## 5. The factory data image
 
@@ -214,6 +232,20 @@ Notes that matter when reasoning about it:
 - The bootstrap sets `SPANGAP_FIXED_PARTITION` (the image target for
   `spangap_create_factory_image` / `spangap_lcd_icons`) to `fixed` when OTA is
   off, `fixed_a` when on. With OTA off it is `fixed`.
+- **Where the size actually comes from.** `hw-tdeck` (a T-Deck Plus, ESP32-S3,
+  16 MB flash) pins `CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y` in its `straddle.yaml`
+  `kconfig:` block — a board straddle is non-buildable, so its
+  `sdkconfig.defaults` would be ignored; everything describing the hardware
+  MUST live in `kconfig:` to survive `--with`. That flows through
+  `staging/sdkconfig.spangap-fragments` and seeds a fresh
+  `esp-idf/sdkconfig`. **Crucially, board fragments seed only on the *first*
+  build / regen: once `esp-idf/sdkconfig` exists, `SDKCONFIG_DEFAULTS` can no
+  longer override it.** So a boardless build (or one with the wrong `--with`)
+  writes a 2 MB `sdkconfig` that the board fragment cannot later fix, and the
+  partition generator then fails with `Partitions table occupies 8.0MB … does
+  not fit in configured flash size 2MB`. The fix is to **delete
+  `esp-idf/sdkconfig` and rebuild with the board** — *not* to force
+  `--flash-size`, which only papers over the stale file.
 
 ## 8. System architecture (where the parts live)
 
@@ -235,6 +267,13 @@ owned by the individual straddles and documented there. The shape:
   byte-array C API and ITS ports; they never include a `RNS::` type.
 - **The platform** (spangap-core/-net/-web/-lcd) provides ITS, storage, the
   filesystem, logging, cron, the IP stack, the web server, and the LCD shell.
+
+Straddles do not call each other directly. Cross-module wiring goes over two
+decoupling buses — the storage bus (a task publishes `s.<task>.*` /
+`<task>.*`, interested tasks react via `storageSubscribeChanges`) and ITS ports
+— so no straddle hard-depends on another's symbols. That is what lets the
+composition be additive: a straddle either reacts to config a peer published or
+opens/dials an ITS port, never links against it.
 
 Storage follows the platform convention: `s.<task>.*` for persistent settings,
 `secrets.<task>.*` for secret material (wiped by factory reset), bare `<task>.*`
@@ -299,4 +338,22 @@ today; the facts above are the design and the host-side contracts it rests on.)
 - **Don't hand-edit `web-interface/package.json`'s `file:` block** or
   `boot/straddles.gen.ts` — both are build-maintained from the staged set.
 - **The board owns flash size, not the buildable.** A stale `sdkconfig` can
-  pin the wrong size; the board's kconfig is authoritative.
+  pin the wrong size; the board's kconfig is authoritative. Recover by deleting
+  `esp-idf/sdkconfig` and rebuilding with the board, never by forcing
+  `--flash-size` (§7).
+- **Always build the buildable WITH a board.** The canonical invocation is
+  `spangap build reticulous/reticulous --with spangap/hw-tdeck` (or
+  `--with spangap/hw-heltecv4` for the screenless board); `spangap/hw-tdeck`
+  additionally pulls in `spangap-lcd`, so the on-device LCD C++ (each straddle's
+  `esp-idf/conditional/spangap-lcd/src/`) only compiles when a screen board is
+  in the build. A bare `spangap build` replays the last explicit invocation
+  stored — target first — in the workspace's `.spangap-build`
+  (`/home/spangap/reticulous/.spangap-build`).
+- **Never run `spangap build` from inside a sub-straddle directory.** The build
+  wrapper walks up to the nearest `straddle.yaml` and **overwrites**
+  `.spangap-build` with *that* straddle as the target — so a later bare
+  `spangap build` builds the wrong thing. Run from the workspace root (the shim)
+  or the `reticulous/` straddle dir.
+- **`spangap build` is quiet** (a couple of lines) unless you pass `-v`; for the
+  real exit status run `spangap build … ; echo $?` and do **not** pipe through
+  `| tail`, which masks the build's exit code with `tail`'s.
