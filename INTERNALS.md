@@ -91,33 +91,40 @@ never linked on a Heltec build).
 
 The buildable ships no `main.cpp`. spangap-inside writes the entire entry point
 into `esp-idf/staging/spangap_init_dispatch.gen.cpp` on every build, by scanning
-each staged straddle's `start:` / `init:` / `settings:` hooks. The generated
-`app_main()` is a fixed skeleton:
+each staged straddle's `services:` / `start:` / `init:` / `settings:`
+declarations. The generated `app_main()` is a fixed skeleton:
 
 ```
 app_main():
-  spangapStartStraddles()        // FIRST: bare-hardware board bring-up
-                                 //   (power rails, HAL register) the
-                                 //   platform depends on — e.g. tdeckStart,
-                                 //   tdeckLcdStart
+  spangapRegisterServices()      // construct + register every staged straddle's
+                                 //   Service, in init_order (platform band
+                                 //   core/net/web/lcd, then dependency-topo)
+  serviceRunStart()              // onStart walk: bare-hardware board bring-up
+                                 //   (power rails, HAL register) the platform
+                                 //   depends on — e.g. tdeckStart, tdeckLcdStart
   spangapInit()                  // platform core foundations (spangap-core)
   spangapSettingsGenDefaults()   // declarative `settings:` storage defaults
-  spangapInitStraddles()         // every staged straddle's init: hook, in
-                                 //   platform-band order (core/net/web/lcd)
-                                 //   then dependency-topo
+  serviceRunInit()               // onInit walk: every staged straddle, ecosystem up
   spangapSettingsGenRegister()   // declarative `settings:` LCD panes
                                  //   (only when spangap-lcd is staged)
   spangapPostAppInit()           // finalise
 ```
 
-`spangapStartStraddles()` and `spangapInitStraddles()` are themselves generated
-in the same file — long lists of forward-declared hook calls (`storageInit`,
-`netInit`, `rnsdInit`, `loraInit`, `tcpInit`, `lxmfInit`, …). Adding a straddle
-that declares `start:`/`init:` is enough to have it run; there is no file to
-edit. `when:`-gated hooks appear only when their gating straddle is staged.
+`spangapRegisterServices()` is generated in the same file: it constructs each
+staged straddle's boot object and appends it to one ordered registry, mixing
+`services:` classes (constructed via a per-straddle trampoline,
+`spangapService_<Class>`) with legacy `start:`/`init:` hooks (`storageInit`,
+`netInit`, `rnsdInit`, `loraInit`, `tcpInit`, `lxmfInit`, …) that the generator
+wraps in adapter Services. `serviceRunStart` / `serviceRunInit` then walk that one
+registry, and an object joins a phase by overriding its `onStart` / `onInit`.
+Adding a straddle that declares `services:` (or a `start:`/`init:` hook) is enough
+to have it run; there is no file to edit. `when:`-gated entries appear only when
+their gating straddle is staged.
 
-The four `spangap*` platform prototypes come from `spangap.h`; hook forward
-decls use default C++ linkage. `main/CMakeLists.txt` registers the `.gen.cpp`
+The `spangap*` platform prototypes (`spangapInit`, `spangapPostAppInit`, the
+settings generators) come from `spangap.h`, and the registry entry points
+(`serviceRegister`/`serviceRunStart`/`serviceRunInit`) from `service.h`; hook
+forward decls use default C++ linkage. `main/CMakeLists.txt` registers the `.gen.cpp`
 guarded on `EXISTS`, so a raw `idf.py` invocation without a prior `spangap build`
 still configures (it simply has no `app_main` to link).
 
@@ -139,7 +146,7 @@ hosts the platform baseline windows (CLI, System Log, Settings from
 `ViewerWindow`). The composition is build-generated:
 
 - `web-interface/src/boot/straddles.gen.ts` is written each build (parallel to
-  the firmware's `spangapInitStraddles()`). It imports and calls every staged
+  the firmware's generated boot registration). It imports and calls every staged
   straddle's `browser_register:` entry (`registerNet`, `registerRnsd`,
   `registerLora`, `registerTcp`, …) in init order, and carries
   `GENERATED_PANELS` (the declarative `settings:` descriptors) + `APP_ICONS`
