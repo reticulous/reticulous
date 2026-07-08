@@ -67,6 +67,12 @@
           title="Viewer"
           @update:visible="v => viewerWebVisible = v"
         />
+        <LcdMirrorWindow
+          :visible="lcdMirrorVisible"
+          :focus-token="lcdMirrorFocus"
+          title="LCD mirror"
+          @update:visible="v => lcdMirrorVisible = v"
+        />
         <SettingsWindow
           :visible="settingsVisible"
           :focus-token="settingsFocus"
@@ -97,12 +103,14 @@ import NodesWindow from 'rns/panels/NodesWindow.vue'
 import MessagesWindow from 'lxmf/panels/MessagesWindow.vue'
 import NomadWindow from 'nomad/panels/NomadWindow.vue'
 import ViewerWindow from 'viewer/panels/ViewerWindow.vue'
+import LcdMirrorWindow from 'lcdmirror/panels/LcdMirrorWindow.vue'
 import { cliVisible, logVisible, cliFocus, logFocus } from 'spangap-browser/modules/advanced'
 import { mapVisible, nodesVisible } from 'rns/modules/rnsd'
 import { messagesVisibleById, messagesFocusById,
          useLxmf, FALLBACK_ID } from 'lxmf/modules/lxmf'
 import { nomadVisible, nomadFocus } from 'nomad/modules/nomad'
 import { viewerWebVisible, viewerWebFocus } from 'viewer/modules/viewer'
+import { lcdMirrorVisible, lcdMirrorFocus } from 'lcdmirror/modules/lcdmirror'
 import { startLogStream, installConsoleHooks } from 'spangap-browser/stores/log'
 
 const router = useRouter()

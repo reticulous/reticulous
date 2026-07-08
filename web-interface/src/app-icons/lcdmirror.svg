@@ -1,0 +1,7 @@
+<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7"
+     stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+  <!-- Screen-mirroring motif: two overlapping rounded "screens". White strokes
+       so it reads on the dark Dock. -->
+  <rect x="3.5" y="6.5" width="12" height="9" rx="1.6" fill="none" opacity="0.6"/>
+  <rect x="8.5" y="9.5" width="12" height="9" rx="1.6" fill="none"/>
+</svg>
