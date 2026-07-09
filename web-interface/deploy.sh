@@ -5,10 +5,15 @@ mkdir -p ../data/webroot
 WEBROOT="$(cd ../data/webroot && pwd)"
 
 # Auto-install npm deps if absent (e.g. after `idf.py reallyclean` or fresh
-# checkout). The spangap-browser dep is `file:` so npm symlinks it into
-# node_modules; this works offline once npm has run once.
-if [ ! -d node_modules ]; then
-    echo "deploy.sh: node_modules missing, running npm install"
+# checkout) OR stale: spangap-inside rewrites package.json's file: straddle
+# deps to match the staged set (adding e.g. lcdmirror on an LCD+web build,
+# dropping it on a headless one), so an install is also needed whenever
+# package.json is newer than the last install's stamp — otherwise the SPA
+# build fails to resolve a just-staged straddle's imports (or keeps bundling
+# a dropped one). The file: deps are symlinks; this works offline once npm
+# has run once. Steady-state builds rewrite nothing and skip the install.
+if [ ! -d node_modules ] || [ package.json -nt node_modules/.package-lock.json ]; then
+    echo "deploy.sh: node_modules missing or stale, running npm install"
     npm install
 fi
 

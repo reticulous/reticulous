@@ -36,43 +36,13 @@
           title="System Log"
           @update:visible="v => logVisible = v"
         />
-        <NodesWindow
-          :visible="nodesVisible"
-          title="Reticulum Nodes"
-          @update:visible="v => nodesVisible = v"
-        />
-        <MapWindow
-          :visible="mapVisible"
-          title="Reticulum Map"
-          @update:visible="v => mapVisible = v"
-        />
-        <MessagesWindow
-          v-for="w in lxmfWindows"
-          :key="w.n"
-          :identity="w.n"
-          :visible="messagesVisibleById[w.n] ?? false"
-          :focus-token="messagesFocusById[w.n] ?? 0"
-          :title="w.displayName ? `LXMF Messages - ${w.displayName}` : 'LXMF Messages'"
-          @update:visible="v => (messagesVisibleById[w.n] = v)"
-        />
-        <NomadWindow
-          :visible="nomadVisible"
-          :focus-token="nomadFocus"
-          title="Nomad Browser"
-          @update:visible="v => nomadVisible = v"
-        />
-        <ViewerWindow
-          :visible="viewerWebVisible"
-          :focus-token="viewerWebFocus"
-          title="Viewer"
-          @update:visible="v => viewerWebVisible = v"
-        />
-        <LcdMirrorWindow
-          :visible="lcdMirrorVisible"
-          :focus-token="lcdMirrorFocus"
-          title="LCD mirror"
-          @update:visible="v => lcdMirrorVisible = v"
-        />
+        <!-- Every straddle-owned window (rns, lxmf, nomad, viewer, lcdmirror,
+             …) self-mounts through the window-mount registry — a staged
+             straddle registers its window component from its register* module
+             in straddles.gen.ts, so this layout never imports straddle
+             packages and never needs editing when the staged set changes.
+             Only spangap-web's own framework windows are mounted here. -->
+        <StraddleWindows />
         <SettingsWindow
           :visible="settingsVisible"
           :focus-token="settingsFocus"
@@ -98,19 +68,8 @@ import Dock from 'spangap-browser/components/Dock.vue'
 import SettingsWindow from 'spangap-browser/components/SettingsWindow.vue'
 import ConnectionOverlay from 'spangap-browser/components/ConnectionOverlay.vue'
 import { settingsVisible, settingsFocus } from 'spangap-browser/modules/advanced'
-import MapWindow from 'rns/panels/MapWindow.vue'
-import NodesWindow from 'rns/panels/NodesWindow.vue'
-import MessagesWindow from 'lxmf/panels/MessagesWindow.vue'
-import NomadWindow from 'nomad/panels/NomadWindow.vue'
-import ViewerWindow from 'viewer/panels/ViewerWindow.vue'
-import LcdMirrorWindow from 'lcdmirror/panels/LcdMirrorWindow.vue'
+import StraddleWindows from 'spangap-browser/components/StraddleWindows.vue'
 import { cliVisible, logVisible, cliFocus, logFocus } from 'spangap-browser/modules/advanced'
-import { mapVisible, nodesVisible } from 'rns/modules/rnsd'
-import { messagesVisibleById, messagesFocusById,
-         useLxmf, FALLBACK_ID } from 'lxmf/modules/lxmf'
-import { nomadVisible, nomadFocus } from 'nomad/modules/nomad'
-import { viewerWebVisible, viewerWebFocus } from 'viewer/modules/viewer'
-import { lcdMirrorVisible, lcdMirrorFocus } from 'lcdmirror/modules/lcdmirror'
 import { startLogStream, installConsoleHooks } from 'spangap-browser/stores/log'
 
 const router = useRouter()
@@ -123,16 +82,6 @@ async function onLogout() {
   window.location.reload()   /* drop all in-memory session/UI state, re-run auth */
 }
 
-
-/* One Messages window per usable LXMF identity; a single FALLBACK_ID window
- * when there are none (so the "create an identity" guidance stays reachable). */
-const lxmf = useLxmf()
-const lxmfWindows = computed(() => {
-  const u = lxmf.usableIdentities.value
-  return u.length
-    ? u.map(i => ({ n: i.n, displayName: i.displayName }))
-    : [{ n: FALLBACK_ID, displayName: '' }]
-})
 
 /* The actual browser window/tab title (document.title): "<program> -
  * <hostname>", collapsed to just the program name when the two are
