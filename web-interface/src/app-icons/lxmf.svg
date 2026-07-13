@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- LXMF = messaging: a simple envelope. Light stroke on transparent so it
-       reads on the dark web dock and rasterizes cleanly for the LCD tile
-       (same style as gear/cli/log). -->
-  <rect x="6" y="14" width="52" height="36" rx="5" fill="none" stroke="#eef3f8" stroke-width="4"/>
-  <path d="M9 17 L32 35 L55 17" fill="none" stroke="#eef3f8" stroke-width="4"
-        stroke-linecap="round" stroke-linejoin="round"/>
-</svg>

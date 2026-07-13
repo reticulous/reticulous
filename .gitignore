@@ -20,6 +20,12 @@ web-interface/.quasar/
 # Generated each build (browser straddle dispatcher)
 web-interface/src/boot/*.gen.ts
 
+# Generated each build: the spangap build wipes this dir and copies in every
+# staged straddle's assets/lcd-icons/*.svg (this repo's own source of truth is
+# assets/lcd-icons/). Which icons appear depends on the staged set, so
+# tracking them just churns.
+web-interface/src/app-icons/
+
 # Generated each build (staged SPA bundle + build stamp baked into the data partition)
 data/webroot/
 data/build_times
