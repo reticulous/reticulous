@@ -17,7 +17,6 @@
     "iface-espnow": "file:../../iface-espnow/browser",
     "iface-lora": "file:../../iface-lora/browser",
     "iface-tcp": "file:../../iface-tcp/browser",
-    "lcdmirror": "file:../../lcdmirror/browser",
     "lxmf": "file:../../lxmf/browser",
     "nomad": "file:../../nomad/browser",
     "pinia": "^3.0.4",
