@@ -1,12 +1,12 @@
 <template>
   <div class="index-page flex flex-center column">
-    <div class="placeholder-title">reticulous</div>
-    <div class="placeholder-hint">network map / chat UI lands later</div>
+    <div class="placeholder-title"><a href="https://reticulous.net">Reticulous</a></div>
+    <div class="placeholder-hint">Reticulum Mesh Networking for ESP32<br>Built with <a href="https://spangap.org">Spangap</a></div>
   </div>
 </template>
 
 <script setup lang="ts">
-// Placeholder. Phase 2 brings the network-map view; Phase 4 adds chat.
+
 </script>
 
 <style scoped>
