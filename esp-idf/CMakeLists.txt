@@ -63,8 +63,10 @@ spangap_create_factory_image(DATA_DIR "${CMAKE_SOURCE_DIR}/../data")
 # spangap_lcd_icons() lives in spangap-lcd's project_include.cmake, so it
 # only exists when that straddle is staged. A --no-lcd build skips the
 # rasterizer entirely (there are no LCD icons to ship without the launcher).
+# No SRC_DIR: each straddle ships its own launcher icons in its
+# esp-idf/assets/lcd-icons/, collected automatically from every staged component.
 if(COMMAND spangap_lcd_icons)
-    spangap_lcd_icons(SRC_DIR "${CMAKE_SOURCE_DIR}/../assets/lcd-icons")
+    spangap_lcd_icons()
 endif()
 # Vector fonts (FreeType / tiny_ttf engines): subset spangap-lcd's shipped faces
 # into /fixed/fonts. Same gating as icons — only exists when spangap-lcd is staged.
