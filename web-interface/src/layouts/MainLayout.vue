@@ -3,6 +3,11 @@
     <q-header class="bg-dark text-white no-shadow app-header">
       <q-toolbar class="topbar" style="min-height: 38px">
         <q-toolbar-title class="topbar-title">{{ progName }}</q-toolbar-title>
+        <!-- Straddle-owned status indicators self-mount here (left of the power
+             button) through the top-bar icon registry — a staged straddle
+             registers its icon from its register* module, so this layout never
+             imports straddle packages and never needs editing as the set changes. -->
+        <TopbarIcons />
         <!-- Power button → Log out. Inline SVG (the SPA uses Quasar's
              svg-material-icons set, so string icon names don't render as a
              webfont). Shown only when auth is active. -->
@@ -69,6 +74,7 @@ import SettingsWindow from 'spangap-browser/components/SettingsWindow.vue'
 import ConnectionOverlay from 'spangap-browser/components/ConnectionOverlay.vue'
 import { settingsVisible, settingsFocus } from 'spangap-browser/modules/advanced'
 import StraddleWindows from 'spangap-browser/components/StraddleWindows.vue'
+import TopbarIcons from 'spangap-browser/components/TopbarIcons.vue'
 import { cliVisible, logVisible, cliFocus, logFocus } from 'spangap-browser/modules/advanced'
 import { startLogStream, installConsoleHooks } from 'spangap-browser/stores/log'
 
