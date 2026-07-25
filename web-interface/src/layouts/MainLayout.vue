@@ -2,7 +2,7 @@
   <q-layout v-if="authChecked" view="hHh Lpr fFf" class="main-layout">
     <q-header class="bg-dark text-white no-shadow app-header">
       <q-toolbar class="topbar" style="min-height: 38px">
-        <q-toolbar-title class="topbar-title">{{ progName }}</q-toolbar-title>
+        <q-toolbar-title class="topbar-title">{{ displayTitle }}</q-toolbar-title>
         <!-- Straddle-owned status indicators self-mount here (left of the power
              button) through the top-bar icon registry — a staged straddle
              registers its icon from its register* module, so this layout never
@@ -89,8 +89,8 @@ async function onLogout() {
 }
 
 
-/* The actual browser window/tab title (document.title): "<program> -
- * <hostname>", collapsed to just the program name when the two are
+/* Shared by the top-bar header and the browser tab title (document.title):
+ * "<program> - <hostname>", collapsed to just the program name when the two are
  * case-insensitively equal (e.g. Reticulous / reticulous). Mirrors MenuBar's
  * progName fallback chain. */
 const progName = computed(() => {
@@ -104,11 +104,11 @@ const hostName = computed(() => {
   const h = device.get('s.net.hostname')
   return typeof h === 'string' ? h.trim() : ''
 })
-watchEffect(() => {
+const displayTitle = computed(() => {
   const prog = progName.value, host = hostName.value
-  document.title = host && host.toLowerCase() !== prog.toLowerCase()
-    ? `${prog} - ${host}` : prog
+  return host && host.toLowerCase() !== prog.toLowerCase() ? `${prog} - ${host}` : prog
 })
+watchEffect(() => { document.title = displayTitle.value })
 
 const session = getSession()
 const sessionState = ref<SessionState>(session.state)
