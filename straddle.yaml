@@ -41,6 +41,7 @@ additional_installs:
   - reticulous/iface-auto
   - reticulous/iface-espnow
   - reticulous/lxmf
+  - reticulous/rlpg
   - reticulous/nomad
   - reticulous/maps
   - spangap/spangap-net
