@@ -57,6 +57,19 @@
       </UsableArea>
     </q-page-container>
     <ConnectionOverlay />
+    <!-- Single-session blocker: shown when the device reports another
+         session holds the slot (BUSY) or when this session was evicted by a
+         takeover (kicked). Teleported to <body> so it covers the whole
+         viewport, header included. -->
+    <Teleport to="body">
+      <div v-if="sessionBlocked" class="session-blocker" role="alertdialog">
+        <div class="session-blocker-box">
+          <div class="session-blocker-title">{{ blockerTitle }}</div>
+          <div class="session-blocker-body">{{ blockerBody }}</div>
+          <button class="session-blocker-btn" @click="onSessionAction">{{ blockerAction }}</button>
+        </div>
+      </div>
+    </Teleport>
   </q-layout>
 </template>
 
@@ -110,9 +123,52 @@ const displayTitle = computed(() => {
 })
 watchEffect(() => { document.title = displayTitle.value })
 
+/* ── Single-session state (BUSY / kicked) ── */
 const session = getSession()
 const sessionState = ref<SessionState>(session.state)
 let sessionUnsub: (() => void) | null = null
+
+/* A reconnect (page reload, dropped link) can briefly land on BUSY: the
+ * device hasn't yet noticed our previous signalling WS closed and rejects
+ * the new connect as a second session. That clears itself within a beat as
+ * the stale slot is reclaimed. Only surface the blocker if we're STILL busy
+ * after this settle window, so a transient reject never flashes the overlay.
+ * A takeover ('kicked') is deliberate — no race — so it shows immediately. */
+const BUSY_SETTLE_MS = 1200
+const busyShown = ref(false)
+let busyTimer: ReturnType<typeof setTimeout> | null = null
+
+function clearBusyTimer() {
+  if (busyTimer) { clearTimeout(busyTimer); busyTimer = null }
+}
+
+function onSessionState(s: SessionState) {
+  sessionState.value = s
+  if (s === 'busy') {
+    if (!busyShown.value && !busyTimer) {
+      busyTimer = setTimeout(() => { busyTimer = null; busyShown.value = true }, BUSY_SETTLE_MS)
+    }
+  } else {
+    clearBusyTimer()
+    busyShown.value = false
+  }
+}
+
+const sessionBlocked = computed(() => busyShown.value || sessionState.value === 'kicked')
+const blockerTitle = computed(() =>
+  sessionState.value === 'busy' ? 'Device busy' : 'Session ended')
+const blockerBody = computed(() => sessionState.value === 'busy'
+  ? 'Another session is active. Taking over will end the other session.'
+  : 'Another session took over this device.')
+const blockerAction = computed(() =>
+  sessionState.value === 'busy' ? 'Take over' : 'Resume')
+
+function onSessionAction() {
+  /* Busy: force-evict the other session. Kicked: retry without force
+     (may land back on BUSY if the new occupant is still there). */
+  const force = sessionState.value === 'busy'
+  session.connect({ force })
+}
 
 onMounted(async () => {
   try {
@@ -123,7 +179,7 @@ onMounted(async () => {
     authActive.value = auth.enabled
   } catch { /* proceed */ }
   authChecked.value = true
-  sessionUnsub = session.onStateChange((s) => { sessionState.value = s })
+  sessionUnsub = session.onStateChange(onSessionState)
   device.connect()
   startLogStream()
   installConsoleHooks()
@@ -131,6 +187,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   if (sessionUnsub) { sessionUnsub(); sessionUnsub = null }
+  clearBusyTimer()
 })
 </script>
 
@@ -161,4 +218,49 @@ onUnmounted(() => {
     rgba(255, 255, 255, 0) 42%
   );
 }
+.session-blocker {
+  position: fixed;
+  inset: 0;
+  /* Above ConnectionOverlay (100000) — the actionable dialog wins when both
+     a link-down scrim and a takeover/busy state are in play. */
+  z-index: 100001;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.session-blocker-box {
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 24px 28px;
+  max-width: 420px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+  color: #fff;
+}
+.session-blocker-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.session-blocker-body {
+  font-size: 14px;
+  line-height: 1.4;
+  opacity: 0.85;
+  margin-bottom: 20px;
+}
+.session-blocker-btn {
+  background: #2a6fc4;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.session-blocker-btn:hover { background: #3b82d9; }
 </style>
