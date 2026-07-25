@@ -9,7 +9,7 @@
 #
 # Build it WITH a board straddle — the board supplies the pin maps, the board
 # bring-up hooks, and the hardware kconfig (flash size, PSRAM mode, display):
-#   spangap build reticulous/reticulous --with spangap/hw-tdeck
+#   spangap build reticulous/reticulous --with spangap/hw-lilygo-tdeck
 #   spangap build reticulous/reticulous --with spangap/hw-heltecv4
 schema_version: 1
 name: reticulous/reticulous
@@ -31,7 +31,7 @@ platforms: [idf]
 #     listed here — spangap-net additional-installs them, so requiring net is
 #     enough.
 #   - The on-device LCD UI is NOT listed here either — it rides on the board: a
-#     board with a screen (hw-tdeck) additional-installs spangap-lcd itself, so
+#     board with a screen (hw-lilygo-tdeck) additional-installs spangap-lcd itself, so
 #     a screenless board (hw-heltecv4) builds headless with no extra flags.
 additional_installs:
   - reticulous/rns

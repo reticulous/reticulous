@@ -65,7 +65,7 @@ component names), picked up by `esp-idf/CMakeLists.txt` via
   enough to pull them in. (That is why `staging/components/` contains `acme`,
   `upnp`, `wg`, `duckdns`, `sshd` even though `straddle.yaml` never names them.)
 - **The on-device LCD UI** (`spangap-lcd`) is *not* listed either — it rides on
-  the board. A board with a screen (`hw-tdeck`) `additional_installs`
+  the board. A board with a screen (`hw-lilygo-tdeck`) `additional_installs`
   `spangap-lcd` itself; a screenless board (`hw-heltecv4`) builds headless with
   no extra flags.
 
@@ -84,7 +84,7 @@ duplicate-symbol link errors. But the component manager does not recurse into
 locally-staged components' dependencies, so the buildable's `idf_component.yml`
 must surface every *third-party managed* dependency any staged straddle (or
 `--with`'d board) transitively uses — today `jgromes/radiolib` (iface-lora's
-radio) and `espressif/esp_lcd_touch_gt911` (the hw-tdeck input HAL, fetched but
+radio) and `espressif/esp_lcd_touch_gt911` (the hw-lilygo-tdeck input HAL, fetched but
 never linked on a Heltec build).
 
 ## 3. The build-generated entry point
@@ -239,7 +239,7 @@ Notes that matter when reasoning about it:
 - The bootstrap sets `SPANGAP_FIXED_PARTITION` (the image target for
   `spangap_create_factory_image` / `spangap_lcd_icons`) to `fixed` when OTA is
   off, `fixed_a` when on. With OTA off it is `fixed`.
-- **Where the size actually comes from.** `hw-tdeck` (a T-Deck Plus, ESP32-S3,
+- **Where the size actually comes from.** `hw-lilygo-tdeck` (a T-Deck Plus, ESP32-S3,
   16 MB flash) pins `CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y` in its `straddle.yaml`
   `kconfig:` block — a board straddle is non-buildable, so its
   `sdkconfig.defaults` would be ignored; everything describing the hardware
@@ -349,8 +349,8 @@ today; the facts above are the design and the host-side contracts it rests on.)
   `esp-idf/sdkconfig` and rebuilding with the board, never by forcing
   `--flash-size` (§7).
 - **Always build the buildable WITH a board.** The canonical invocation is
-  `spangap build reticulous/reticulous --with spangap/hw-tdeck` (or
-  `--with spangap/hw-heltecv4` for the screenless board); `spangap/hw-tdeck`
+  `spangap build reticulous/reticulous --with spangap/hw-lilygo-tdeck` (or
+  `--with spangap/hw-heltecv4` for the screenless board); `spangap/hw-lilygo-tdeck`
   additionally pulls in `spangap-lcd`, so the on-device LCD C++ (each straddle's
   `esp-idf/conditional/spangap-lcd/src/`) only compiles when a screen board is
   in the build. A bare `spangap build` replays the last explicit invocation

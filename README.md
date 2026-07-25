@@ -15,7 +15,7 @@ Every component starts automatically when it is in the build — there is no han
 The `hw-*` board straddles don't decide what the device does — they only make a board usable. Build the buildable *with* one:
 
 ```sh
-spangap build reticulous/reticulous --with spangap/hw-tdeck      # LilyGo T-Deck Plus (has a screen → on-device UI)
+spangap build reticulous/reticulous --with spangap/hw-lilygo-tdeck      # LilyGo T-Deck Plus (has a screen → on-device UI)
 spangap build reticulous/reticulous --with spangap/hw-heltecv4   # Heltec WiFi LoRa 32 V4 (headless)
 ```
 
