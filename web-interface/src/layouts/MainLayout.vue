@@ -102,10 +102,9 @@ async function onLogout() {
 }
 
 
-/* Shared by the top-bar header and the browser tab title (document.title):
- * "<program> - <hostname>", collapsed to just the program name when the two are
- * case-insensitively equal (e.g. Reticulous / reticulous). Mirrors MenuBar's
- * progName fallback chain. */
+/* progName mirrors MenuBar's fallback chain; hostName is the device's configured
+ * hostname. The host segment is dropped when it is empty or case-insensitively
+ * equal to the program name (e.g. reticulous / Reticulous). */
 const progName = computed(() => {
   const p = device.get('s.sys.progname')
   if (typeof p === 'string' && p.trim()) return p.trim()
@@ -117,11 +116,17 @@ const hostName = computed(() => {
   const h = device.get('s.net.hostname')
   return typeof h === 'string' ? h.trim() : ''
 })
-const displayTitle = computed(() => {
-  const prog = progName.value, host = hostName.value
-  return host && host.toLowerCase() !== prog.toLowerCase() ? `${prog} - ${host}` : prog
+const showHost = computed(() => {
+  const host = hostName.value
+  return !!host && host.toLowerCase() !== progName.value.toLowerCase()
 })
-watchEffect(() => { document.title = displayTitle.value })
+/* Top-bar header: "<hostname> - <program>". */
+const displayTitle = computed(() =>
+  showHost.value ? `${hostName.value} - ${progName.value}` : progName.value)
+/* Browser tab: "<hostname> - Web UI - <program>", naming the role between them. */
+const tabTitle = computed(() =>
+  showHost.value ? `${hostName.value} - Web UI - ${progName.value}` : `Web UI - ${progName.value}`)
+watchEffect(() => { document.title = tabTitle.value })
 
 /* ── Single-session state (BUSY / kicked) ── */
 const session = getSession()
