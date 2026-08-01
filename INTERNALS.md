@@ -84,8 +84,9 @@ duplicate-symbol link errors. But the component manager does not recurse into
 locally-staged components' dependencies, so the buildable's `idf_component.yml`
 must surface every *third-party managed* dependency any staged straddle (or
 `--with`'d board) transitively uses — today `jgromes/radiolib` (iface-lora's
-radio) and `espressif/esp_lcd_touch_gt911` (the hw-lilygo-tdeck input HAL, fetched but
-never linked on a Heltec build).
+radio), `espressif/esp_tinyusb` (spangap-core's `usb cdc` composite-device
+console) and `espressif/esp_lcd_touch_gt911` (the hw-lilygo-tdeck input HAL,
+fetched but never linked on a Heltec build).
 
 ## 3. The build-generated entry point
 

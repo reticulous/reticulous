@@ -14,11 +14,15 @@ dependencies:
   # dependencies, so THIS buildable has to surface every third-party managed dep
   # any staged straddle (or --with'd board) transitively uses:
   #   - radiolib            → iface-lora's LoRa transport
+  #   - esp_tinyusb         → spangap-core's `usb cdc` console transport, which
+  #     puts the console and a second claimable port on a TinyUSB composite device.
   #   - esp_lcd_touch_gt911 → the hw-lilygo-tdeck board's on-device-UI input HAL. This
   #     is board-specific; a heltec build fetches it but never links it. Until
   #     the build surfaces a --with'd board's managed deps automatically, it
   #     lives here.
   jgromes/radiolib:
     version: "^7.0.0"
+  espressif/esp_tinyusb:
+    version: "^2.2"
   espressif/esp_lcd_touch_gt911:
     version: "^1.1"
