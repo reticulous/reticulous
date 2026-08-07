@@ -41,7 +41,11 @@ additional_installs:
   - reticulous/iface-auto
   - reticulous/iface-espnow
   - reticulous/lxmf
-  - reticulous/rlpg
+# rlpg is opt-in, not default-on: a mailbox is a ROLE a particular node is given,
+# not a capability every node wants, and it is the one straddle here that spends
+# the state store on other people's data. Build it with
+# `spangap build --with reticulous/rlpg`.
+#  - reticulous/rlpg
   - reticulous/nomad
   - reticulous/maps
   - spangap/spangap-net

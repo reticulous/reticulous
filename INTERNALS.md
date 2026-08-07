@@ -69,6 +69,12 @@ component names), picked up by `esp-idf/CMakeLists.txt` via
   `spangap-lcd` itself; a screenless board (`hw-heltecv4`) builds headless with
   no extra flags.
 
+One straddle sits deliberately *outside* the list: **`rlpg`**, the LXMF mailbox
+node, is commented out and built with `--with reticulous/rlpg`. A mailbox is a
+role a particular node is given rather than a capability every node wants, and
+it is the one straddle here that spends the state store holding other people's
+mail — on a 4 MB board (`hw-nibble-zero`) that store is 256 KB in total.
+
 **`--without <name>`** drops a straddle from the staged set, and the cascade
 takes its hard dependents with it. Everything in the list is default-on and
 droppable this way. Conversely, **`--with <board>`** adds a board straddle whose
