@@ -13,3 +13,10 @@
 # of /state). The user-visible name/banner are firmware identity now — set via
 # straddle.yaml's stub/display_name/banner (→ CONFIG_SPANGAP_FW_*), not here.
 CONFIG_SPANGAP_PROJECT_NAME="reticulous"
+
+# Compile the verbose tier in. ESP_LOGV is dropped at build time unless the
+# ceiling allows it, so without this `log <tag> verbose` silently shows nothing
+# rather than showing more — and iface-lora puts its per-frame trace there, one
+# level under its decision trace. Nothing is emitted by default: the ceiling is
+# what may be printed, `s.log.level` is what is.
+CONFIG_LOG_MAXIMUM_LEVEL_VERBOSE=y
