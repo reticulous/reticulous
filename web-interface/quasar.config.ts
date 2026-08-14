@@ -1,5 +1,6 @@
 import { configure } from 'quasar/wrappers';
 import { readFileSync } from 'node:fs';
+import { workspaceMounts } from 'spangap-browser/vite/workspace-mounts';
 
 // The browser-half straddles are pulled in as `file:` deps and npm-linked. They
 // ARE the code under development, so Vite must NOT pre-bundle them — a stale
@@ -21,6 +22,13 @@ export default configure(() => {
     build: {
       target: { browser: ['es2022'] },
       vueRouterMode: 'history',
+      // The flasher and the image catalogue, at the same paths (and the same
+      // relation to each other) a deployment serves them at, so the page's
+      // ../builds/<catalogue>/ works here as it does there. Workspace-relative;
+      // outside a workspace the mounts are skipped and the SPA still runs.
+      vitePlugins: [
+        [workspaceMounts, { '/flashmon': 'flashmon/flashmon', '/builds': 'builds' }],
+      ],
       extendViteConf(viteConf) {
         // spangap-browser is a file: dep — vite must resolve its peers
         // (vue, pinia, quasar, vue-router) from this consumer's node_modules,
@@ -57,9 +65,10 @@ export default configure(() => {
       // Reverse-proxy the device so the dev server is same-origin with it: the
       // session cookie, /auth, and the /webrtc signaling all behave exactly as
       // when the SPA is served from the device. `spangap dev` passes the active
-      // device address in SPANGAP_DEVICE; without it (a bare `quasar dev`) there's
-      // no target and these routes 404 locally. secure:false accepts the device's
-      // self-signed TLS. (The WebDAV file editor talks to arbitrary /<path> URLs
+      // device address in SPANGAP_DEVICE — a bare host (its own https port), or
+      // host:port when it reaches the device through the relay that run owns.
+      // Without it (a bare `quasar dev`) there's no target and these routes 404
+      // locally. secure:false accepts the device's self-signed TLS. (The WebDAV file editor talks to arbitrary /<path> URLs
       // that can't be prefix-proxied without shadowing Vite's assets, so that one
       // feature is unavailable under `spangap dev` — everything else works.)
       proxy: (() => {
