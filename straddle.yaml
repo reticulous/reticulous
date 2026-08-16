@@ -24,6 +24,16 @@ default_hostname: reticulous
 firmware: esp-idf
 browser: web-interface
 platforms: [idf]
+# First-run setup on a device with a screen: a fresh node is walked through a
+# password, a name and a network on its own panel, before the launcher is
+# reachable — the same three answers the browser flasher asks for over serial,
+# for a node handed over with neither cable nor browser. Gated on the screen
+# being in the build, so a headless board compiles none of it
+# (esp-idf/main/conditional/spangap-lcd/src/onboard_lcd.cpp). The buildable inits
+# last, so storage, auth, net and the shell are all up by the time it runs.
+init:
+  - call: reticulousOnboardInit
+    when: spangap/spangap-lcd
 # The kitchen sink, in one place: the full reticulous mesh + the spangap IP/web
 # platform. All default-on and droppable with `spangap build --without <name>`
 # (the cascade takes hard dependents with it). Notes:

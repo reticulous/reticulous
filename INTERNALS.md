@@ -17,10 +17,11 @@ Relative to a bare ESP-IDF project, the buildable contributes:
 - **The composition manifest** — `straddle.yaml`'s `additional_installs:` list,
   which names the reticulous mesh family + the spangap IP/web platform that get
   staged into the image (§2).
-- **No application sources.** `esp-idf/main/` registers exactly one generated
-  translation unit (`staging/spangap_init_dispatch.gen.cpp`) plus any
-  `conditional/<name>/` app-level code (none today). There is no `main.cpp` and
-  no hand-written `app_main` (§3).
+- **Almost no application sources.** `esp-idf/main/` registers one generated
+  translation unit (`staging/spangap_init_dispatch.gen.cpp`) plus its
+  `conditional/<name>/` app-level code — today one file, the first-run setup
+  wizard that only exists on a screen build (§3a). There is no `main.cpp` and no
+  hand-written `app_main` (§3).
 - **The browser SPA shell** — `web-interface/`, a Quasar/Vue app that hosts each
   staged straddle's browser half. Its straddle registrations and `package.json`
   dependency list are build-generated (§4).
@@ -141,6 +142,47 @@ The declarative `settings:` blocks of each straddle are compiled here too:
 emits the LCD settings panes — one source feeding both storage defaults and the
 on-device UI. The browser half of those same descriptors is rendered at runtime
 by `GeneratedPanel.vue` (§4).
+
+## 3a. The first-run setup wizard (screen builds only)
+
+The buildable's one piece of application code is
+`esp-idf/main/conditional/spangap-lcd/src/onboard_lcd.cpp` — the on-device
+password / hostname / wifi wizard the [README](README.md#first-run-setup-on-a-device-with-a-screen)
+describes. It lives here rather than in a board or platform straddle because it
+is a *product* decision (which three answers a Reticulous node is set up with),
+not a board capability and not a platform service:
+
+- **`conditional/spangap-lcd/` is the gate.** spangap-inside compiles a
+  buildable's `main/conditional/<repo>/src/*` only when `<repo>` is in the staged
+  set (`SPANGAP_CONDITIONAL_SRCS` in `staging/main_requires.cmake`), so a
+  screenless board never sees the file and needs no `#if`. The same primitive
+  every straddle's `esp-idf/conditional/spangap-lcd/` slice uses; the buildable's
+  copy just lives under `main/`.
+- **`straddle.yaml`'s `init:` hook is `when:`-gated on the same straddle**, so
+  the call itself is only written into the generated dispatcher on a screen
+  build. The buildable inits last (§3), which is what makes storage, auth, net
+  and the shell all safe to touch from it.
+- **It owns no state of its own.** Each answer goes to the surface that owns it
+  (`authPasswd`, `s.net.hostname`, net's `wifi.cmd.add`, iface-lora's
+  `lora.0.freq_mhz` / `lora.0.bw_khz` unit-bridge keys and its `s.lora.0.*`
+  modem settings), and the single key it writes, `s.onboard.done`, records only
+  that the wizard has been through once. Its open condition is read off the
+  device — `authRealmUnset("admin")`, an empty `s.net.wifi.nets`, an unset
+  `s.lora.0.frequency` — so nothing has to be seeded for it to be correct on a
+  factory-fresh node.
+- **The optional steps are gated twice.** The LoRa windows compile only under
+  `#if CONFIG_STRADDLE_IFACE_LORA` and the mesh-name window only under
+  `#if CONFIG_STRADDLE_LXMF` (the presence symbol every staged straddle gets),
+  and the SUPE checkbox inside the modem window only under
+  `#if !defined(CONFIG_LORA_NO_SUPE)` — the same gate iface-lora's own sources
+  and its declarative `settings:` rows use. A `--without iface-lora` build
+  compiles the pair away to empty stubs; a no-SUPE build keeps the pair and
+  loses the checkbox.
+- **It is a raw LVGL layer, not an `LcdApp`.** An app is a launcher tile with a
+  lifecycle; this is a modal that must sit *above* the shell (status bar and
+  home-bar strip are `lv_layer_top` children, so a later sibling covers them)
+  and be gone for good afterwards. It runs on the lcd task via `lcdRun()` like
+  any other LVGL work.
 
 ## 4. The browser SPA shell
 
