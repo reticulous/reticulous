@@ -113,7 +113,7 @@ app_main():
   spangapInit()                  // platform core foundations (spangap-core)
   spangapSettingsGenDefaults()   // declarative `settings:` storage defaults
   serviceRunInit()               // onInit walk: every staged straddle, ecosystem up
-  spangapSettingsGenRegister()   // declarative `settings:` LCD panes
+  spangapSettingsGenRegister()   // declarative `settings:` LCD tree
                                  //   (only when spangap-lcd is staged)
   spangapPostAppInit()           // finalise
 ```
@@ -139,9 +139,9 @@ still configures (it simply has no `app_main` to link).
 The declarative `settings:` blocks of each straddle are compiled here too:
 `spangapSettingsGenDefaults()` emits the `storageDefault(...)` calls (e.g.
 `s.rnsd.enable=1`, `s.lora.0.mode="gateway"`) and `spangapSettingsGenRegister()`
-emits the LCD settings panes — one source feeding both storage defaults and the
-on-device UI. The browser half of those same descriptors is rendered at runtime
-by `GeneratedPanel.vue` (§4).
+emits the LCD settings tree — one source feeding both storage defaults and the
+on-device UI. The browser half of those same fragments is merged into the
+settings-tree store and rendered at runtime by `NodePane.vue` (§4).
 
 ## 3a. The first-run setup wizard (screen builds only)
 
