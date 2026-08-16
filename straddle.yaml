@@ -61,3 +61,10 @@ additional_installs:
   - spangap/spangap-net
   - spangap/spangap-web
   - spangap/viewer
+# The top-level mesh menu, named and ordered here and left empty: every mesh
+# straddle (rns, the interfaces, lxmf, nomad, rnsh, rlpg) contributes its pane
+# under `id: reticulum` and states nothing but that id. The buildable is the
+# right place for the name because it arrives last — naming is last-setter-wins,
+# so whatever assembles the image has the final say over the tree it ships.
+settings:
+  - at: [ { id: reticulum, label: "Reticulum Mesh", short: "Mesh", order: 15 } ]

@@ -24,7 +24,7 @@ own open access point, named `reticulous_` plus four hex characters.
 Connect to it and browse to **https://192.168.1.1** (accept the
 certificate warning — expected on first contact). Set the device password
 on the setup page, then join your own network under
-**Settings → Internet → WiFi**. From then on the device is at
+**Settings → WiFi & Network → WiFi**. From then on the device is at
 **https://reticulous.local**. CLI equivalent: `net add MyNetwork mypass`.
 
 **2. Turn on a mesh interface.** They are all **off** by default — see
@@ -40,7 +40,7 @@ The device announces itself periodically (every 30 minutes, or
 
 Reticulum doesn't care what medium a packet travels over, and this device
 can use several at once. Configure them under
-**Settings → Mesh Network → RNS Interfaces**, or with the CLI verbs
+**Settings → Reticulum Mesh → RNS Interfaces**, or with the CLI verbs
 below.
 
 ### LoRa — long-range radio
@@ -180,7 +180,7 @@ state; `set s.gps.enable=0` turns the receiver off.
   Keys under `s.*` persist and sync to all UIs; `secrets.*` persist but
   never leave the device; everything else is live status. Set your
   timezone: `set s.ntp.tz=Europe/Berlin`.
-- **Internet extras** under Settings → Internet: WireGuard tunnel, UPnP
+- **Network extras** under Settings → WiFi & Network: WireGuard tunnel, UPnP
   port mapping, DuckDNS and Let's Encrypt certificates, for reaching the
   web UI from outside your network.
 
