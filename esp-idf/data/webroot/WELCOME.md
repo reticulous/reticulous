@@ -40,7 +40,7 @@ The device announces itself periodically (every 30 minutes, or
 
 Reticulum doesn't care what medium a packet travels over, and this device
 can use several at once. Configure them under
-**Settings → Reticulum Mesh → RNS Interfaces**, or with the CLI verbs
+**Settings → Reticulum Mesh**, or with the CLI verbs
 below.
 
 ### LoRa — long-range radio

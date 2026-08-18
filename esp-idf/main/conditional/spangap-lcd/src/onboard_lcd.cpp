@@ -705,7 +705,7 @@ void scanStop(void) {
     if (!w.scanning) return;
     w.scanning = false;
     if (w.linkPoll) { lv_timer_delete(w.linkPoll); w.linkPoll = nullptr; }
-    storageUnsubscribe("wifi.scanned");
+    storageUnsubscribeCb("wifi.scanned", onScanStorage);
     storageSet("wifi.scan", "0");
 }
 
