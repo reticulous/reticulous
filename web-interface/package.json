@@ -13,7 +13,6 @@
     "@xterm/addon-fit": "^0.11.0",
     "@xterm/xterm": "^6.0.0",
     "iface-lora": "file:../../iface-lora/browser",
-    "lcdmirror": "file:../../lcdmirror/browser",
     "lxmf": "file:../../lxmf/browser",
     "nomad": "file:../../nomad/browser",
     "pinia": "^3.0.4",

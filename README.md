@@ -62,7 +62,13 @@ The `hw-*` board straddles don't decide what the device does — they only make 
 ```sh
 spangap build reticulous/reticulous --with spangap/hw-lilygo-tdeck      # LilyGo T-Deck Plus (has a screen → on-device UI)
 spangap build reticulous/reticulous --with spangap/hw-heltecv4   # Heltec WiFi LoRa 32 V4 (headless)
+spangap build reticulous/reticulous --with spangap/hw-meshnology-w12  # Meshnology W12 (LR2021, 30 dBm, OLED status pages)
+spangap build reticulous/reticulous --with spangap/hw-lilygo-tbeam-supreme  # LilyGo T-Beam S3 Supreme (AXP2101 rails, GNSS, RTC, OLED status pages)
+spangap build reticulous/reticulous --with spangap/hw-wismesh-tap-v2  # RAK WisMesh TAP V2 (touch screen → on-device UI, GNSS)
 ```
+
+The full board list is `spangap/hw-*` in the workspace; each board's own README
+says what is wired and what is not.
 
 A board with a screen additionally installs the on-device LCD UI itself, so a screenless board builds headless with no extra flags. Leave off `--with` for a generic build that runs Reticulum over WiFi on any ESP32-S3 with PSRAM — browser and CLI access, but no mesh radio.
 

@@ -16,13 +16,10 @@ dependencies:
   #   - radiolib            → iface-lora's LoRa transport
   #   - esp_tinyusb         → spangap-core's `usb cdc` console transport, which
   #     puts the console and a second claimable port on a TinyUSB composite device.
-  #   - esp_lcd_touch_gt911 → the hw-lilygo-tdeck board's on-device-UI input HAL. This
-  #     is board-specific; a heltec build fetches it but never links it. Until
-  #     the build surfaces a --with'd board's managed deps automatically, it
-  #     lives here.
+  # (The touch driver components — esp_lcd_touch_ft5x06 / _gt911 — are pinned by
+  # spangap-lcd's own idf_component.yml alongside its ILI9341 driver, so boards
+  # need nothing surfaced here for touch.)
   jgromes/radiolib:
     version: "^7.0.0"
   espressif/esp_tinyusb:
     version: "^2.2"
-  espressif/esp_lcd_touch_gt911:
-    version: "^1.1"

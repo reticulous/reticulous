@@ -79,7 +79,7 @@ mail — on a 4 MB board (`hw-nibble-zero`) that store is 256 KB in total.
 **`--without <name>`** drops a straddle from the staged set, and the cascade
 takes its hard dependents with it. Everything in the list is default-on and
 droppable this way. Conversely, **`--with <board>`** adds a board straddle whose
-HAL sources (`tdeckStart`, `gpsInit`, …) the generated `main` links against — a
+HAL services (`TdeckBoard`, `TdeckBattery`, …) the generated `main` links against — a
 buildable's `main` REQUIRES the *full* staged set, including `--with`'d
 straddles it never names (`staging/main_requires.cmake`, written by
 spangap-inside).

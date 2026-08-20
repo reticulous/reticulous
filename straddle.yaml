@@ -21,6 +21,11 @@ stub: reticulous
 display_name: Reticulous
 banner: Reticulum mesh networking for the masses!
 default_hostname: reticulous
+# The RNode-over-TCP door (iface-lora's `s.lora.rnode.tcp`): an RNS
+# `RNodeInterface` client dials 7633 and nothing else, so the container bridge
+# must front exactly this port for an in-container reference client to attach.
+# One-line flow list — the host tooling reads it with a sed, not a YAML parser.
+bridge_ports: [7633]
 firmware: esp-idf
 browser: web-interface
 platforms: [idf]
@@ -49,8 +54,10 @@ additional_installs:
   - reticulous/iface-lora
   - reticulous/iface-tcp
   - reticulous/iface-auto
-  - reticulous/iface-espnow
+#  - reticulous/iface-espnow
+  - reticulous/iface-ble
   - reticulous/lxmf
+  - reticulous/rnode-ble
 # rlpg is opt-in, not default-on: a mailbox is a ROLE a particular node is given,
 # not a capability every node wants, and it is the one straddle here that spends
 # the state store on other people's data. Build it with
