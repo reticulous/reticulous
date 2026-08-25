@@ -97,7 +97,7 @@ around it — good for an always-on node with a wide view. `rnstatus`,
 `rnpath` and `rnprobe` are on board for network diagnostics.
 
 For private networks, every interface accepts an IFAC network name and
-passphrase (`ifac_netname` and a `secrets. ... .ifac_netkey`) so only
+passphrase (`ifac_netname` and `ifac_netkey`) so only
 peers holding the key can join.
 
 ## Messaging

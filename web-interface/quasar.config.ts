@@ -1,12 +1,14 @@
 import { configure } from 'quasar/wrappers';
 import { readFileSync } from 'node:fs';
 import { workspaceMounts } from 'spangap-browser/vite/workspace-mounts';
+import { linkedDepsHmr } from 'spangap-browser/vite/linked-deps-hmr';
 
 // The browser-half straddles are pulled in as `file:` deps and npm-linked. They
 // ARE the code under development, so Vite must NOT pre-bundle them — a stale
 // optimized chunk is why an edit to e.g. spangap-browser wouldn't show up under
 // `spangap dev` until the cache was blown away. Excluding them from optimizeDeps
-// serves them as live source (proper HMR); their real npm deps still optimize.
+// serves them as live source; their real npm deps still optimize. The other half
+// of that is the linkedDepsHmr plugin below, which is what watches them.
 const pkg = JSON.parse(
   readFileSync(new URL('./package.json', import.meta.url), 'utf8'),
 ) as { dependencies?: Record<string, string> };
@@ -28,6 +30,10 @@ export default configure(() => {
       // outside a workspace the mounts are skipped and the SPA still runs.
       vitePlugins: [
         [workspaceMounts, { '/flashmon': 'flashmon/flashmon', '/builds': 'builds' }],
+        // Watches the straddles where they really live, so an edit to one shows
+        // up in the browser straight away — see the plugin for why Vite's own
+        // watcher can't be made to.
+        [linkedDepsHmr, {}],
       ],
       extendViteConf(viteConf) {
         // spangap-browser is a file: dep — vite must resolve its peers
