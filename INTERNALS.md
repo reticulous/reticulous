@@ -173,11 +173,14 @@ not a board capability and not a platform service:
 - **The optional steps are gated twice.** The LoRa windows compile only under
   `#if CONFIG_STRADDLE_IFACE_LORA` and the mesh-name window only under
   `#if CONFIG_STRADDLE_LXMF` (the presence symbol every staged straddle gets),
-  and the SUPE checkbox inside the modem window only under
+  and the SUPE checkbox and its regime row inside the modem window only under
   `#if !defined(CONFIG_LORA_NO_SUPE)` — the same gate iface-lora's own sources
   and its declarative `settings:` rows use. A `--without iface-lora` build
   compiles the pair away to empty stubs; a no-SUPE build keeps the pair and
-  loses the checkbox.
+  loses both rows. The regime sits directly under the switch because the two are
+  one answer: a node speaking SUPE on a different channel raster from its
+  neighbours negotiates nothing. It is written whatever the switch says, since
+  the regime also selects which channels the per-second RSSI beat measures.
 - **It is a raw LVGL layer, not an `LcdApp`.** An app is a launcher tile with a
   lifecycle; this is a modal that must sit *above* the shell (status bar and
   home-bar strip are `lv_layer_top` children, so a later sibling covers them)

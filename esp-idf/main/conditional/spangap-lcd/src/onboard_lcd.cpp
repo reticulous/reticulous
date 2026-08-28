@@ -103,6 +103,7 @@ struct {
     lv_obj_t* bwMx;
     lv_obj_t* crMx;
     lv_obj_t* supeCb;
+    lv_obj_t* regimeMx;
     lv_obj_t* lxmfName;
     /* Keyboard sub-overlay (touch-only boards). */
     lv_obj_t* kbOverlay;
@@ -894,6 +895,11 @@ const char* const BW_KEYS[] = { "125", "250", "500", "" };
 const char* const CR_KEYS[] = { "4/5", "4/6", "4/7", "4/8", "" };
 const int SF_FIRST = 5;     /* SF_KEYS[i] is SF (i + SF_FIRST) */
 const int CR_FIRST = 5;     /* CR_KEYS[i] is coding rate 4/(i + CR_FIRST) */
+/* SUPE's regimes, in the order s.lora.0.SUPE.afa numbers them. The regime says
+ * what is permissible on which channels — the raster, the airtime allowance,
+ * the length ceilings and the power limit — so it is the second half of the
+ * SUPE answer and belongs beside the switch rather than three panes away. */
+const char* const REGIME_KEYS[] = { "Single", "EU 9-ch", "" };
 
 /* Where the stored value sits in a map, so the window opens on what the device
  * already holds rather than on a guess. -1 when it holds something the row
@@ -928,6 +934,11 @@ void buildLoraModem(void) {
     lv_obj_set_style_text_color(w.supeCb, COL_FG, 0);
     if (storageGetInt("s.lora.0.SUPE.enable", 0)) lv_obj_add_state(w.supeCb, LV_STATE_CHECKED);
     if (focusGroup()) lv_group_add_obj(focusGroup(), w.supeCb);
+    /* Which regime, directly under the switch. It is not a second decision to
+     * postpone: a node that speaks SUPE on a different raster from its
+     * neighbours negotiates nothing, so the two answers are one answer. */
+    w.regimeMx = mkChoice(w.body, "Regime", REGIME_KEYS,
+                          storageGetInt("s.lora.0.SUPE.afa", 0) == 1 ? 1 : 0);
 #endif
     focusField(w.sfMx);
 }
@@ -947,6 +958,13 @@ bool commitLoraModem(void) {
 #if !defined(CONFIG_LORA_NO_SUPE)
     if (w.supeCb)
         storageSet("s.lora.0.SUPE.enable", lv_obj_has_state(w.supeCb, LV_STATE_CHECKED) ? 1 : 0);
+    /* Written whatever the switch says: the regime also selects which channels
+     * the per-second RSSI beat measures and draws, which is what it does with
+     * SUPE off. An unpicked matrix keeps whatever the device already holds. */
+    if (w.regimeMx) {
+        int rg = choiceIndex(w.regimeMx, 2);
+        if (rg >= 0) storageSet("s.lora.0.SUPE.afa", rg);
+    }
 #endif
     /* The only place the radio is turned on. Reaching this button is the whole
      * of the LoRa answer — a skipped or abandoned pair leaves it off. */
@@ -1066,7 +1084,7 @@ void finish(void) {
     s_pristine = nullptr;
     w.title = w.sub = w.body = w.msg = w.btnRow = w.backBtn = w.okBtn = w.okLbl = nullptr;
     w.pw1 = w.pw2 = w.host = w.netList = w.ssidField = w.wifiPass = nullptr;
-    w.freqTa = w.sfMx = w.bwMx = w.crMx = w.supeCb = w.lxmfName = nullptr;
+    w.freqTa = w.sfMx = w.bwMx = w.crMx = w.supeCb = w.regimeMx = w.lxmfName = nullptr;
     /* After the screen is handed back, not before: this blocks on the persist
      * worker, and holding the last step up while flash is written would read as
      * the button not having worked. */
@@ -1139,7 +1157,7 @@ void showStep(void) {
     lv_obj_clean(w.body);
     s_pristine = nullptr;      /* whatever held a default is gone with the body */
     w.pw1 = w.pw2 = w.host = w.netList = w.ssidField = w.wifiPass = nullptr;
-    w.freqTa = w.sfMx = w.bwMx = w.crMx = w.supeCb = w.lxmfName = nullptr;
+    w.freqTa = w.sfMx = w.bwMx = w.crMx = w.supeCb = w.regimeMx = w.lxmfName = nullptr;
     setMsg(nullptr, true);
     /* Back to the defaults the steps that say nothing else expect. Back is on
      * screen only where it goes somewhere. */
