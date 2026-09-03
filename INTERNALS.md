@@ -200,7 +200,7 @@ hosts the platform baseline windows (CLI, System Log, Settings from
 - `web-interface/src/boot/straddles.gen.ts` is written each build (parallel to
   the firmware's generated boot registration). It imports and calls every staged
   straddle's `browser_register:` entry (`registerNet`, `registerRnsd`,
-  `registerLora`, `registerTcp`, …) in init order, and carries
+  `registerLoraMon`, `registerTcp`, …) in init order, and carries
   `GENERATED_PANELS` (the declarative `settings:` descriptors) + `APP_ICONS`
   (the launcher SVGs for the bottom Dock). Each `browser_register:` entry is a
   `call:` (the `registerXxx` hook name) plus an optional `module:` — the import

@@ -105,10 +105,6 @@ struct {
     lv_obj_t* supeCb;
     lv_obj_t* regimeMx;
     lv_obj_t* lxmfName;
-    /* Keyboard sub-overlay (touch-only boards). */
-    lv_obj_t* kbOverlay;
-    lv_obj_t* kbTa;
-    lv_obj_t* kbTarget;
     /* Link watch, live only while the network step (and so the scan) stands. */
     lv_timer_t* linkPoll;
     int  step;
@@ -264,52 +260,30 @@ void focusField(lv_obj_t* obj) {
     if (obj && focusGroup()) lv_group_focus_obj(obj);
 }
 
-/* ---- the on-screen keyboard, for a board with no real one ----
- * Same shape as the Settings text rows: a second full-screen layer over ours
- * holding a copy of the field and an lv_keyboard, writing back on OK. A board
- * that reports a keyboard (lcdHasKeyboard) never sees it — those fields are
- * typed into where they stand. The LoRa frequency has its own keypad and never
- * routes through here. */
+/* ---- typing on a device with no keys ----
+ * The panel's own keyboard is the lcd component's (lcdKeyboardAttach in
+ * mkField below): a tap on any field puts it up, ✓ writes the text back, and
+ * on these one-line fields it fires the field's LV_EVENT_READY as well — so
+ * the ✓ is the Enter the step was already written around. The LoRa frequency
+ * has its own keypad on the step itself and is never attached. */
 
-void kbClose(bool commit) {
-    if (commit && w.kbTarget && w.kbTa)
-        lv_textarea_set_text(w.kbTarget, lv_textarea_get_text(w.kbTa));
-    if (w.kbOverlay) lv_obj_delete(w.kbOverlay);
-    w.kbOverlay = w.kbTa = w.kbTarget = nullptr;
+/* Where a step OPENS. Focus on a field says "start typing", which is worth
+ * having where the keys are under the operator's thumbs and worth nothing where
+ * the answer is a tap — and the keyboard is not put up here either: it would
+ * cover the question the step is asking and the Skip that answers it another
+ * way. On a touch device a step opens as what it is, a question with fields
+ * under it. */
+void editField(lv_obj_t* obj) {
+    if (lcdKeyboardOnScreen()) return;
+    focusField(obj);
 }
 
-void onKbEvent(lv_event_t* e) {
-    lv_event_code_t c = lv_event_get_code(e);
-    if (c == LV_EVENT_READY)       kbClose(true);
-    else if (c == LV_EVENT_CANCEL) kbClose(false);
-}
-
-void onFieldClicked(lv_event_t* e) {
-    if (lcdHasKeyboard() || w.kbOverlay) return;
-    lv_obj_t* target = lv_event_get_target_obj(e);
-    if (!target) return;
-
-    lv_obj_t* ov = lv_obj_create(lv_layer_top());
-    lv_obj_remove_style_all(ov);
-    lv_obj_set_size(ov, lv_pct(100), lv_pct(100));
-    lv_obj_set_style_bg_color(ov, COL_BG, 0);
-    lv_obj_set_style_bg_opa(ov, LV_OPA_COVER, 0);
-    lv_obj_add_flag(ov, LV_OBJ_FLAG_CLICKABLE);
-    w.kbOverlay = ov;
-    w.kbTarget  = target;
-
-    lv_obj_t* ta = lv_textarea_create(ov);
-    lv_obj_set_size(ta, lv_pct(96), lcdPx(40));
-    lv_obj_align(ta, LV_ALIGN_TOP_MID, 0, lcdPx(6));
-    lv_textarea_set_one_line(ta, true);
-    lv_textarea_set_password_mode(ta, lv_textarea_get_password_mode(target));
-    lv_textarea_set_text(ta, lv_textarea_get_text(target));
-    w.kbTa = ta;
-
-    lv_obj_t* kb = lv_keyboard_create(ov);
-    lv_keyboard_set_textarea(kb, ta);
-    lv_obj_add_event_cb(kb, onKbEvent, LV_EVENT_READY,  nullptr);
-    lv_obj_add_event_cb(kb, onKbEvent, LV_EVENT_CANCEL, nullptr);
+/* The NEXT field of a chain the operator is already typing in (Enter on the
+ * first password, on the network name): they are mid-answer, so the keyboard
+ * travels with them rather than making them tap again. */
+void chainField(lv_obj_t* obj) {
+    if (lcdKeyboardOnScreen()) lcdKeyboardOpen(obj);
+    else                       focusField(obj);
 }
 
 lv_obj_t* mkField(lv_obj_t* parent, const char* placeholder, bool secret, lv_event_cb_t onEnter) {
@@ -325,7 +299,7 @@ lv_obj_t* mkField(lv_obj_t* parent, const char* placeholder, bool secret, lv_eve
      * field, and on the last one it is the primary button. Typing and pressing
      * return is the whole of every field step. */
     if (onEnter) lv_obj_add_event_cb(ta, onEnter, LV_EVENT_READY, nullptr);
-    lv_obj_add_event_cb(ta, onFieldClicked, LV_EVENT_CLICKED, nullptr);
+    lcdKeyboardAttach(ta);   /* no keys on the device → a tap types, Enter answers the step */
     return ta;
 }
 
@@ -481,7 +455,7 @@ void onSuggest(lv_event_t*) {
 
 void onPwEnter(lv_event_t* e) {
     /* First field: on to the retype. Second: the button. */
-    if (lv_event_get_target_obj(e) == w.pw1) focusField(w.pw2);
+    if (lv_event_get_target_obj(e) == w.pw1) chainField(w.pw2);
     else                                     advance();
 }
 
@@ -493,7 +467,7 @@ void buildPasswd(void) {
     w.pw1 = mkField(w.body, "Password", true, onPwEnter);
     w.pw2 = mkField(w.body, "Password again", true, onPwEnter);
     mkButton(w.body, "Suggest one", onSuggest);
-    focusField(w.pw1);
+    editField(w.pw1);
 }
 
 /* Returns true when the step is settled and the wizard may move on. */
@@ -543,7 +517,7 @@ void buildHostname(void) {
      * Enter accepts it. */
     prefillSelected(w.host, storageGetStr("s.net.hostname", "").c_str());
     mkLabel(w.body, "Letters, digits and _ only.", LcdFace::UI, 11, COL_MUTED);
-    focusField(w.host);
+    editField(w.host);
 }
 
 bool commitHostname(void) {
@@ -743,7 +717,7 @@ bool commitWifi(void) {
 /* ---- step 4: that network's password ---- */
 
 void onWifiPassEnter(lv_event_t* e) {
-    if (w.ssidField && lv_event_get_target_obj(e) == w.ssidField) focusField(w.wifiPass);
+    if (w.ssidField && lv_event_get_target_obj(e) == w.ssidField) chainField(w.wifiPass);
     else                                                          advance();
 }
 
@@ -758,7 +732,7 @@ void buildWifiPass(void) {
         lv_textarea_set_max_length(w.ssidField, 32);
     }
     w.wifiPass = mkField(w.body, "Password (blank if open)", true, onWifiPassEnter);
-    focusField(w.pickedOther ? w.ssidField : w.wifiPass);
+    editField(w.pickedOther ? w.ssidField : w.wifiPass);
 }
 
 bool commitWifiPass(void) {
@@ -1007,7 +981,7 @@ void buildLxmfName(void) {
      * going on from one is an answer too (no identity). */
     w.lxmfName = mkField(w.body, "Your name", false, onLxmfEnter);
     lv_textarea_set_max_length(w.lxmfName, 32);
-    focusField(w.lxmfName);
+    editField(w.lxmfName);
 }
 
 bool commitLxmfName(void) {
@@ -1075,7 +1049,7 @@ void onDeferredSave(lv_timer_t*) { storageSave(); }
 void finish(void) {
     scanStop();
     storageSet("s.onboard.done", 1);
-    if (w.kbOverlay) { lv_obj_delete(w.kbOverlay); w.kbOverlay = w.kbTa = w.kbTarget = nullptr; }
+    lcdKeyboardClose();   /* its own layer — it would outlive the wizard */
     /* Hand the keys back BEFORE the widgets go: LVGL moves focus to the next
      * object in the group as each one is deleted, and the group it does that in
      * must not be the shell's. */

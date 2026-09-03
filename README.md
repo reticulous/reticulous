@@ -53,6 +53,8 @@ Finishing **flushes the store twice**: once as the screen is handed back, and ag
 
 It opens only on a node that still has one of these open — no admin password, no saved network, no radio frequency (a frequency has no default: it is the antenna and the region, which no build can know), no LXMF identity — and only until it has been answered once: reaching the end, by answering or by skipping, sets `s.onboard.done` and it never opens again. A factory reset clears the store, so a factory-fresh node asks again.
 
+A step opens as what it is — the question, its fields, and Skip — on every device. Where there are keys (`lcdSetHasKeyboard`) focus rests on the first field, so the answer is typed straight in and Enter walks to the next one. Where there are none, a tap on a field raises the lcd component's on-screen keyboard over it and its ✓ is that same Enter: the first password hands the keyboard to the retype, the network name to its password. Nothing is put up over the step unasked — the keyboard covers the question it is asking.
+
 The screen is held dark from boot until the launcher's icons settle, and on a fresh node the layer normally goes up inside that window — so the launcher is not what appears first. The code is `esp-idf/main/conditional/spangap-lcd/src/onboard_lcd.cpp`, compiled only when a screen is in the build; a headless board ships none of it.
 
 ## Building
