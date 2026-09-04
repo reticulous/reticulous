@@ -67,6 +67,7 @@ spangap build reticulous/reticulous --with spangap/hw-heltecv4   # Heltec WiFi L
 spangap build reticulous/reticulous --with spangap/hw-meshnology-w12  # Meshnology W12 (LR2021, 30 dBm, OLED status pages)
 spangap build reticulous/reticulous --with spangap/hw-lilygo-tbeam-supreme  # LilyGo T-Beam S3 Supreme (AXP2101 rails, GNSS, RTC, OLED status pages)
 spangap build reticulous/reticulous --with spangap/hw-wismesh-tap-v2  # RAK WisMesh TAP V2 (touch screen → on-device UI, GNSS)
+spangap build reticulous/reticulous --with spangap/hw-waveshare-28b  # Waveshare ESP32-S3-Touch-LCD-2.8B (480x640 touch screen, no radio but WiFi/BLE)
 ```
 
 The full board list is `spangap/hw-*` in the workspace; each board's own README
