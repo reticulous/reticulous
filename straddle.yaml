@@ -58,18 +58,19 @@ additional_installs:
   - reticulous/iface-ble
   - reticulous/lxmf
   - reticulous/rnode-ble
-# rlpg is opt-in, not default-on: a mailbox is a ROLE a particular node is given,
-# not a capability every node wants, and it is the one straddle here that spends
-# the state store on other people's data. Build it with
-# `spangap build --with reticulous/rlpg`.
-#  - reticulous/rlpg
+# lxmproxy is opt-in, not default-on: hosting somebody's account is a ROLE a
+# particular node is given, not a capability every node wants, and it is the one
+# straddle here that spends the state store on another device's mail. The client
+# half lives in lxmf and every node has it. Build the server with
+# `spangap build --with reticulous/lxmproxy`.
+#  - reticulous/lxmproxy
   - reticulous/nomad
   - reticulous/maps
   - spangap/spangap-net
   - spangap/spangap-web
   - spangap/viewer
 # The top-level mesh menu, named and ordered here and left empty: every mesh
-# straddle (rns, the interfaces, lxmf, nomad, rnsh, rlpg) contributes under
+# straddle (rns, the interfaces, lxmf, nomad, rnsh) contributes under
 # `id: reticulum` and states nothing but that id. The buildable is the right
 # place for the name because it arrives last — naming is last-setter-wins, so
 # whatever assembles the image has the final say over the tree it ships.
