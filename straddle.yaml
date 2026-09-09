@@ -26,6 +26,10 @@ default_hostname: reticulous
 # must front exactly this port for an in-container reference client to attach.
 # One-line flow list — the host tooling reads it with a sed, not a YAML parser.
 bridge_ports: [7633]
+# What a fresh workspace's `builds/local` catalogue starts out as: the published
+# `dev` catalogue, whose entries are every board this project builds for. Copied
+# once by the first `spangap flashmon`; after that the file is the user's.
+catalogue_seed: https://reticulous.net/builds/dev/builds.yaml
 firmware: esp-idf
 browser: web-interface
 platforms: [idf]

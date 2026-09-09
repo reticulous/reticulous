@@ -1,6 +1,5 @@
 import { configure } from 'quasar/wrappers';
 import { readFileSync } from 'node:fs';
-import { workspaceMounts } from 'spangap-browser/vite/workspace-mounts';
 import { linkedDepsHmr } from 'spangap-browser/vite/linked-deps-hmr';
 
 // The browser-half straddles are pulled in as `file:` deps and npm-linked. They
@@ -24,12 +23,7 @@ export default configure(() => {
     build: {
       target: { browser: ['es2022'] },
       vueRouterMode: 'history',
-      // The flasher and the image catalogue, at the same paths (and the same
-      // relation to each other) a deployment serves them at, so the page's
-      // ../builds/<catalogue>/ works here as it does there. Workspace-relative;
-      // outside a workspace the mounts are skipped and the SPA still runs.
       vitePlugins: [
-        [workspaceMounts, { '/flashmon': 'flashmon/flashmon', '/builds': 'builds' }],
         // Watches the straddles where they really live, so an edit to one shows
         // up in the browser straight away — see the plugin for why Vite's own
         // watcher can't be made to.
