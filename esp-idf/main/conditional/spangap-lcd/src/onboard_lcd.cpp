@@ -3,7 +3,7 @@
  *
  * A fresh node needs the same answers whichever way you reach it: an admin
  * password, a name, a network, and — on a board with a radio — a frequency and
- * a modem configuration. The browser flasher asks for the first three over
+ * a modem configuration. flashmon asks for the first three over
  * serial before the device is ever unplugged; this asks for all of them on the
  * device itself, so a node handed to someone with no cable and no browser is
  * set up from its own panel.
@@ -628,7 +628,7 @@ void rebuildNets(void) {
          * symbol: nearly every network wants a password, so saying so on every
          * row is noise, and a `*` on the ones that do is a legend the screen
          * has nowhere to put. "(open)" needs no key to read, and it is exactly
-         * the difference the next step turns on — the same wording the flasher
+         * the difference the next step turns on — the same wording flashmon
          * and the Settings scan list use. */
         lv_obj_t* row = addNetRow((ssid + (locked ? "" : "  (open)")).c_str(), i, false);
         /* The selection follows the name across a re-sort. */
@@ -656,7 +656,7 @@ bool staConnected(void) { return storageGetStr("wifi.sta.state", "") == "connect
  * gets it back — a 20 s join/rejoin cycle for as long as the step stands.
  *
  * The step only exists because no network was saved, but the screen is not the
- * only way to answer that: the browser, the CLI and the flasher can all put the
+ * only way to answer that: the browser, the CLI and flashmon can all put the
  * device on a network while this is up, and then the step is a scan fighting a
  * link nobody wants disturbed. So watch the link while the step stands and, the
  * moment it comes up, take that as the answer and move on. Cheap enough to poll
@@ -1018,7 +1018,7 @@ bool stepNeeded(int step) {
         case STEP_PASSWD:   return w.needPasswd;
         case STEP_HOSTNAME: return true;   /* the node's own name; always asked */
         /* Read live, not off the boot-time count: a network can arrive from the
-         * browser, the CLI or the flasher while an earlier step stands, and a
+         * browser, the CLI or flashmon while an earlier step stands, and a
          * device that is already on one has nothing left to ask (and must not
          * have a scan armed over its association). */
         case STEP_WIFI:     return w.needWifi && !staConnected();

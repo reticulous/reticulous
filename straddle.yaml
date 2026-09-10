@@ -35,7 +35,7 @@ browser: web-interface
 platforms: [idf]
 # First-run setup on a device with a screen: a fresh node is walked through a
 # password, a name and a network on its own panel, before the launcher is
-# reachable — the same three answers the browser flasher asks for over serial,
+# reachable — the same three answers flashmon asks for over serial,
 # for a node handed over with neither cable nor browser. Gated on the screen
 # being in the build, so a headless board compiles none of it
 # (esp-idf/main/conditional/spangap-lcd/src/onboard_lcd.cpp). The buildable inits
