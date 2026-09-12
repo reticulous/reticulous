@@ -84,3 +84,19 @@ additional_installs:
 # the interfaces are the substance of the mesh menu, not a category within it.
 settings:
   - at: [ { id: reticulum, label: "Reticulum Mesh", short: "Mesh", order: 15 } ]
+# The order this image offers its apps in — the panel's launcher grid and the
+# browser's dock from one list. It is stated here for the same reason the mesh
+# menu is named here: the order is about the image as a whole — the mesh apps
+# first, then the panes you go to rather than live in — and the buildable is the
+# only straddle that can see all of it.
+#
+# The list spans both surfaces, and a name for an app a surface hasn't got is
+# ignored there: Maps is the panel's alone, NetGraph and the screen mirror the
+# browser's. "Viewer" is the app the panel labels Info and the browser labels
+# Viewer — the icon name is what they share, and either surface matches a name
+# against its apps' labels and icon names alike.
+#
+# Anything not named (a `--with` straddle's app, a board's) falls in after these,
+# in each surface's own default order, and on the panel the operator's own drag
+# (s.lcd.launcher_order) outranks the lot.
+app_order: [LXMF, Nomad, LoRaMon, Maps, Settings, Log, CLI, Activity, NetGraph, Viewer, LcdMirror]
