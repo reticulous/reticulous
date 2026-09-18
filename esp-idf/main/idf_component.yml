@@ -23,3 +23,5 @@ dependencies:
     version: "^7.0.0"
   espressif/esp_tinyusb:
     version: "^2.2"
+    rules:
+      - if: "target != linux"

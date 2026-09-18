@@ -29,3 +29,12 @@ web-interface/src/app-icons/
 # Generated each build (staged SPA bundle + build stamp baked into the data partition)
 data/webroot/
 data/build_times
+
+# A build tree for a target that is not the one in build/ — parked beside it so
+# switching between a chip build and the host build costs no rebuild.
+esp-idf/build.*/
+
+# What a run of the simulated testbed leaves behind: one directory per station
+# (its state store, its console log) and the ether's account of the air.
+sim/nodes/
+sim/record.tsv

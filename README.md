@@ -75,6 +75,12 @@ says what is wired and what is not.
 
 A board with a screen additionally installs the on-device LCD UI itself, so a screenless board builds headless with no extra flags. Leave off `--with` for a generic build that runs Reticulum over WiFi on any ESP32-S3 with PSRAM — browser and CLI access, but no mesh radio.
 
+One board is not a board: `--with spangap/hw-linux` builds the same firmware for
+ESP-IDF's Linux host target, so a station is a process and several of them talk
+over a virtual radio on one machine. That is the simulated testbed, and it is
+for development and testing rather than for running this software on a Linux
+box — see [`sim/README.md`](sim/README.md).
+
 Primary target is the **LilyGo T-Deck Plus** (ESP32-S3FN16R8, 16 MB flash, 8 MB octal PSRAM, SX1262 LoRa, 320×240 LCD, QWERTY, trackball, GPS); the **Heltec WiFi LoRa 32 V4** is a headless secondary. PSRAM is required — the Heltec V3, which has none, does not qualify.
 
 ## Security
@@ -84,3 +90,4 @@ The design has had dedicated attention on security and is intended to be securab
 ## Read next
 
 - [INTERNALS.md](INTERNALS.md) — the assembly/maintainer reference: the `additional_installs` cascade and `--without` semantics, the build-generated entry point, partition/flash-size generation, the data image and SPA shell, and the test harness.
+- [sim/README.md](sim/README.md) — the simulated testbed: stations as processes on one machine over a virtual radio, and where every piece of it lives. [sim/INTERNALS.md](sim/INTERNALS.md) is why it is built that way.

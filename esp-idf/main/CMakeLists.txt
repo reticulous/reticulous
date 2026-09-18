@@ -21,6 +21,14 @@ if(NOT EXISTS "${_INIT_DISPATCH}")
     set(_INIT_DISPATCH "")
 endif()
 
+# The radio/WiFi/lwIP components do not register on the linux host target, and
+# a REQUIRES on an unregistered component is fatal. esp_event registers
+# everywhere; the host build gets its `driver` from the board straddle.
+set(_IDF_REQ esp_event)
+if(NOT IDF_TARGET STREQUAL "linux")
+    list(APPEND _IDF_REQ driver esp_netif esp_wifi lwip)
+endif()
+
 idf_component_register(
     SRCS
         ${_INIT_DISPATCH}
@@ -31,9 +39,5 @@ idf_component_register(
     REQUIRES
         ${SPANGAP_REQUIRES}
         # ESP-IDF / managed components stay static — not gateable straddles.
-        driver
-        esp_event
-        esp_netif
-        esp_wifi
-        lwip
+        ${_IDF_REQ}
 )
