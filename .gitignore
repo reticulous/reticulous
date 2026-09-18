@@ -16,6 +16,9 @@ esp-idf/managed_components/
 web-interface/node_modules/
 web-interface/dist/
 web-interface/.quasar/
+# Quasar compiles its config to a throwaway beside it, stamped with the epoch
+# millisecond of the run, and does not always clear up after itself.
+web-interface/*.temporary.compiled.*.mjs
 
 # Generated each build (browser straddle dispatcher)
 web-interface/src/boot/*.gen.ts
