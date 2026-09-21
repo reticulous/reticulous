@@ -1,0 +1,19 @@
+/* The page is a map with a menu bar; nothing else scrolls. */
+html, body, #q-app {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: #121417;
+}
+
+/* Dropdown menus: dark, to match the map they sit over. */
+.q-menu {
+  background: #1b1f26;
+  border: 1px solid #2b313b;
+}
+.q-menu .q-item {
+  min-height: 32px;
+  font-size: 13px;
+}

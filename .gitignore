@@ -37,7 +37,14 @@ data/build_times
 # switching between a chip build and the host build costs no rebuild.
 esp-idf/build.*/
 
-# What a run of the simulated testbed leaves behind: one directory per station
-# (its state store, its console log) and the ether's account of the air.
-sim/nodes/
-sim/record.tsv
+# The simulated testbed. A scenario is a person's own design of a network, a
+# snapshot is one of their networks as it stood, and `run/` is the live copy
+# the stations write into — none of the three belongs to the repo. The control
+# page's build tree is ignored the same way the web interface's is.
+sim/scenarios/
+sim/snapshots/
+sim/run/
+sim/ui/node_modules/
+sim/ui/dist/
+sim/ui/.quasar/
+sim/ui/*.temporary.compiled.*.mjs
