@@ -45,7 +45,6 @@ goes in and how it is laid out.
 ```
 additional_installs:
   - reticulous/rns
-  - reticulous/iface-lora
   - reticulous/iface-tcp
   - reticulous/iface-auto
   - reticulous/iface-espnow
@@ -59,7 +58,7 @@ additional_installs:
 `spangap build` resolves this list transitively and stages each resolved
 straddle into `esp-idf/staging/components/<short>/` (short, fork-friendly
 component names), picked up by `esp-idf/CMakeLists.txt` via
-`EXTRA_COMPONENT_DIRS`. Two list members are deliberately implicit:
+`EXTRA_COMPONENT_DIRS`. Three list members are deliberately implicit:
 
 - **The remote-access services** (ACME / UPnP / WireGuard / DuckDNS) are *not*
   listed — `spangap-net` `additional_installs` them itself, so requiring net is
@@ -69,6 +68,11 @@ component names), picked up by `esp-idf/CMakeLists.txt` via
   the board. A board with a screen (`hw-lilygo-tdeck`) `additional_installs`
   `spangap-lcd` itself; a screenless board (`hw-heltecv4`) builds headless with
   no extra flags.
+- **The LoRa interface** (`iface-lora`) rides on the board for the same reason.
+  A board with a modem `additional_installs` it — and pulls `loramon` in behind
+  it — so a radioless board (`hw-waveshare-28b`) ships no LoRa settings section,
+  no `s.lora.*` keys and no LoRaMon tile, and offers nobody a radio it has not
+  got. What is listed here is the interfaces every board can run.
 
 One straddle sits deliberately *outside* the list: **`lxmproxy`**, the LXMF
 proxy server, is commented out and built with `--with reticulous/lxmproxy`.
@@ -177,9 +181,10 @@ not a board capability and not a platform service:
   `#if CONFIG_STRADDLE_LXMF` (the presence symbol every staged straddle gets),
   and the SUPE checkbox and its regime row inside the modem window only under
   `#if !defined(CONFIG_LORA_NO_SUPE)` — the same gate iface-lora's own sources
-  and its declarative `settings:` rows use. A `--without iface-lora` build
-  compiles the pair away to empty stubs; a no-SUPE build keeps the pair and
-  loses both rows. The regime sits directly under the switch because the two are
+  and its declarative `settings:` rows use. A build on a board with no modem —
+  which is any board that does not `additional_installs` iface-lora — compiles
+  the pair away to empty stubs, and so does `--without iface-lora`; a no-SUPE
+  build keeps the pair and loses both rows. The regime sits directly under the switch because the two are
   one answer: a node speaking SUPE on a different channel raster from its
   neighbours negotiates nothing. It is written whatever the switch says, since
   the regime also selects which channels the per-second RSSI beat measures.

@@ -52,16 +52,21 @@ init:
 #   - The on-device LCD UI is NOT listed here either — it rides on the board: a
 #     board with a screen (hw-lilygo-tdeck) additional-installs spangap-lcd itself, so
 #     a screenless board (hw-heltecv4) builds headless with no extra flags.
+#   - Nor is the LoRa radio: iface-lora rides on the board the same way, so a
+#     board with a modem (hw-heltecv4) additional-installs it — and the two
+#     straddles that are about the radio rather than about this image, LoRaMon
+#     and the RNode Bluetooth door, come with it — while a radioless board
+#     (hw-waveshare-28b) gets no LoRa settings section, no s.lora.* keys and no
+#     launcher tile for a radio it hasn't got. The interfaces here are the ones
+#     every board can run.
 additional_installs:
   - reticulous/rns
   - reticulous/rnsh
-  - reticulous/iface-lora
   - reticulous/iface-tcp
   - reticulous/iface-auto
 #  - reticulous/iface-espnow
   - reticulous/iface-ble
   - reticulous/lxmf
-  - reticulous/rnode-ble
 # lxmproxy is opt-in, not default-on: hosting somebody's account is a ROLE a
 # particular node is given, not a capability every node wants, and it is the one
 # straddle here that spends the state store on another device's mail. The client
