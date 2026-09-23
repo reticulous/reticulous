@@ -24,13 +24,17 @@ The testbed builds no firmware. Build the station binary once, for the
 
 ```sh
 spangap build reticulous/reticulous --with spangap/hw-linux \
+    --with reticulous/netgraph \
     -x reticulous/rnsh -x reticulous/iface-auto -x reticulous/iface-ble \
     -x reticulous/rnode-ble -x reticulous/nomad -x reticulous/maps \
     -x spangap/viewer -x spangap/acme -x spangap/duckdns -x spangap/sshd \
     -x spangap/upnp -x spangap/wg
 ```
 
-The excluded straddles are the ones not built for this target. The result is
+The excluded straddles are the ones not built for this target. netgraph is not
+in the image by default, but a scenario whose stations share a community
+(`s.netgraph.community`) needs it: the community's membership announce is what
+carries each node's gateway distance. The result is
 `../esp-idf/build.linux/reticulous.elf`, which is what a station is, with its
 `/fixed` tree in `../esp-idf/build.linux/data_merged/`.
 
