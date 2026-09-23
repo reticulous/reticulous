@@ -43,8 +43,8 @@ import setup as setup_module       # noqa: E402
 import stations as stations_module  # noqa: E402
 import webrtc as webrtc_module   # noqa: E402
 
-DEFAULT_ELF = os.path.join(BUILDABLE, "esp-idf", "build", "reticulous.elf")
-DEFAULT_FIXED = os.path.join(BUILDABLE, "esp-idf", "build", "data_merged")
+DEFAULT_ELF = os.path.join(BUILDABLE, "esp-idf", "build.linux", "reticulous.elf")
+DEFAULT_FIXED = os.path.join(BUILDABLE, "esp-idf", "build.linux", "data_merged")
 UI_DIST = os.path.join(SIM_DIR, "ui", "dist", "spa")
 
 TRANSPORT_KEY = "s.rnsd.transport_enabled"

@@ -23,6 +23,8 @@ export default configure(() => {
     build: {
       target: { browser: ['es2022'] },
       vueRouterMode: 'history',
+      // deploy.sh builds into the firmware build's own dir, one per target.
+      ...(process.env.SPANGAP_WEB_DIST ? { distDir: process.env.SPANGAP_WEB_DIST } : {}),
       vitePlugins: [
         // Watches the straddles where they really live, so an edit to one shows
         // up in the browser straight away — see the plugin for why Vite's own

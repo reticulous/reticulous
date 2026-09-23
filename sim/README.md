@@ -31,13 +31,12 @@ spangap build reticulous/reticulous --with spangap/hw-linux \
 ```
 
 The excluded straddles are the ones not built for this target. The result is
-`../esp-idf/build/reticulous.elf`, which is what a station is.
+`../esp-idf/build.linux/reticulous.elf`, which is what a station is, with its
+`/fixed` tree in `../esp-idf/build.linux/data_merged/`.
 
-One build directory serves both targets, so switching between this and a chip
-build is a full rebuild unless you park the tree you are not using beside it
-(`esp-idf/build.<target>/` is gitignored for exactly that). IDF refuses to
-build into a tree configured for another target, so a switch wants
-`idf.py fullclean`, or the build directory deleted, first.
+Every target builds in its own `esp-idf/build.<target>/`, so a chip build
+(`build.esp32s3/`) and this one never touch each other's files, and switching
+between them rebuilds nothing.
 
 ## Running it
 

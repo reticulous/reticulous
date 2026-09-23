@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """
-Write data/build_times: packed little-endian struct
-  uint32_t fixed_content_max_mtime — max mtime (seconds) of any file under data/ (except this file)
+write_build_times.py <data_dir> [<more_data_dir> ...]
+
+Write <data_dir>/build_times: packed little-endian struct
+  uint32_t fixed_content_max_mtime — max mtime (seconds) of any file under the
+                                     data dirs (except this file)
   uint32_t image_built_unix        — UTC seconds when this script ran (after web deploy)
   uint32_t webroot_crc32           — CRC32 of concatenated webroot file contents (sorted paths);
                                      stable across rebuilds if .gz bytes unchanged (unlike mtimes)
@@ -36,12 +39,14 @@ def webroot_crc32(webroot: str) -> int:
 
 
 def main() -> None:
-    if len(sys.argv) != 2:
-        print("usage: write_build_times.py <data_dir>", file=sys.stderr)
+    if len(sys.argv) < 2:
+        print("usage: write_build_times.py <data_dir> [<more_data_dir> ...]",
+              file=sys.stderr)
         sys.exit(1)
     data_dir = os.path.abspath(sys.argv[1])
     max_m = 0
-    for root, _dirs, files in os.walk(data_dir):
+    walked = [data_dir] + [os.path.abspath(d) for d in sys.argv[2:]]
+    for root, _dirs, files in (w for d in walked for w in os.walk(d)):
         for name in files:
             if name == "build_times":
                 continue

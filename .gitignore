@@ -7,14 +7,12 @@ __pycache__/
 *.pyc
 *.pyo
 
-# Build artifacts (spangap-generated)
-esp-idf/build/
-esp-idf/sdkconfig
-esp-idf/sdkconfig.old
-esp-idf/staging/
+# Build artifacts (spangap-generated). One build.<target>/ per target holds all
+# of a build's output — IDF's tree, sdkconfig, staging/, partitions.csv,
+# dependencies.lock and the web bundle.
+esp-idf/build.*/
 esp-idf/managed_components/
 web-interface/node_modules/
-web-interface/dist/
 web-interface/.quasar/
 # Quasar compiles its config to a throwaway beside it, stamped with the epoch
 # millisecond of the run, and does not always clear up after itself.
@@ -28,14 +26,6 @@ web-interface/src/boot/*.gen.ts
 # assets/lcd-icons/). Which icons appear depends on the staged set, so
 # tracking them just churns.
 web-interface/src/app-icons/
-
-# Generated each build (staged SPA bundle + build stamp baked into the data partition)
-data/webroot/
-data/build_times
-
-# A build tree for a target that is not the one in build/ — parked beside it so
-# switching between a chip build and the host build costs no rebuild.
-esp-idf/build.*/
 
 # The simulated testbed. A scenario is a person's own design of a network, a
 # snapshot is one of their networks as it stood, and `run/` is the live copy
