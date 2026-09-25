@@ -345,7 +345,10 @@ Besides the map, a station is reachable three other ways:
   websocket. First-run setup and every CLI command, exactly as a board on a
   cable.
 - `nc 127.0.0.1<id> 8081` — its TCP CLI, the same command line, from a shell
-  in the container. This is the door simd itself uses for setup.
+  in the container. This is the door simd itself uses for setup. The firmware
+  keeps it closed until `s.net.cli_port` opens it, as on a board, so a
+  station answers here, and this harness can set it up, only after
+  `set s.net.cli_port 8081` has been typed at its **Console**.
 - `tail -f run/nodes/<name>/log` — everything it has printed, across restarts.
 
 A station that exits is started again, because a restart on this target is a

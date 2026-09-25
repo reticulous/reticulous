@@ -6,8 +6,10 @@ The lines are CLI commands, so every setting the firmware has — or grows —
 is reachable without this file knowing its name, and since they are settings
 rather than actions, sending them again is harmless.
 
-The channel is the station's own TCP CLI on `127.0.0.1<id>:8081`, which on
-this target is open from boot and needs no login. It is line-oriented and
+The channel is the station's own TCP CLI on `127.0.0.1<id>:8081`, which needs
+no login and is closed, as on a board, until `set s.net.cli_port 8081` opens
+it; a station that has not been given that line refuses the connection for
+good. It is line-oriented and
 echoes nothing; what marks the end of a command's output is the prompt, a
 whole line ending in `"$ "`. So an exchange is: drain to the prompt, write
 one line, drain to the prompt again — and what came back in between is the
