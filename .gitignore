@@ -26,15 +26,3 @@ web-interface/src/boot/*.gen.ts
 # assets/lcd-icons/). Which icons appear depends on the staged set, so
 # tracking them just churns.
 web-interface/src/app-icons/
-
-# The simulated testbed. A scenario is a person's own design of a network, a
-# snapshot is one of their networks as it stood, and `run/` is the live copy
-# the stations write into — none of the three belongs to the repo. The control
-# page's build tree is ignored the same way the web interface's is.
-sim/scenarios/
-sim/snapshots/
-sim/run/
-sim/ui/node_modules/
-sim/ui/dist/
-sim/ui/.quasar/
-sim/ui/*.temporary.compiled.*.mjs

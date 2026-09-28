@@ -77,11 +77,11 @@ A board with a screen additionally installs the on-device LCD UI itself, so a sc
 
 One board is not a board: `--with spangap/hw-linux` builds the same firmware for
 ESP-IDF's Linux host target, so a station is a process and several of them talk
-over a virtual radio on one machine. That is the simulated testbed: `spangap
-sim` starts it and opens a map of the network in your browser, where stations
-are put down, dragged about and driven. It is for development and testing
-rather than for running this software on a Linux box — see
-[SIMesh](https://github.com/reticulous/SIMesh).
+over a virtual radio on one machine. That is the simulated testbed,
+[SIMesh](https://github.com/reticulous/SIMesh): `simesh` starts it and opens a
+map of the network in your browser, where stations are put down, dragged about
+and driven. It is for development and testing rather than for running this
+software on a Linux box.
 
 Primary target is the **LilyGo T-Deck Plus** (ESP32-S3FN16R8, 16 MB flash, 8 MB octal PSRAM, SX1262 LoRa, 320×240 LCD, QWERTY, trackball, GPS); the **Heltec WiFi LoRa 32 V4** is a headless secondary. PSRAM is required — the Heltec V3, which has none, does not qualify.
 
