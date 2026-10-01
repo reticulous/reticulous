@@ -78,7 +78,7 @@ A board with a screen additionally installs the on-device LCD UI itself, so a sc
 One board is not a board: `--with spangap/hw-linux` builds the same firmware for
 ESP-IDF's Linux host target, so a station is a process and several of them talk
 over a virtual radio on one machine. That is the simulated testbed,
-[sim-mesh](https://github.com/sim-mesh/sim-mesh): `sim-mesh` starts it and opens a
+[sim-mesh](https://github.com/sim-mesh/sim-mesh): `sim` starts it and opens a
 map of the network in your browser, where stations are put down, dragged about
 and driven. It is for development and testing rather than for running this
 software on a Linux box.
@@ -92,4 +92,4 @@ The design has had dedicated attention on security and is intended to be securab
 ## Read next
 
 - [INTERNALS.md](INTERNALS.md) — the assembly/maintainer reference: the `additional_installs` cascade and `--without` semantics, the build-generated entry point, partition/flash-size generation, the data image and SPA shell, and the test harness.
-- [sim-mesh](https://github.com/sim-mesh/sim-mesh) — the simulated testbed: its own launcher `sim-mesh`, the map that drives it, what a scenario is, the medium its stations talk over, and where every piece of it lives.
+- [sim-mesh](https://github.com/sim-mesh/sim-mesh) — the simulated testbed: its own launcher `sim`, the map that drives it, what a scenario is, the medium its stations talk over, and where every piece of it lives.
