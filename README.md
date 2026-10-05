@@ -81,7 +81,10 @@ over a virtual radio on one machine. That is the simulated testbed,
 [sim-mesh](https://github.com/sim-mesh/sim-mesh): `sim` starts it and opens a
 map of the network in your browser, where stations are put down, dragged about
 and driven. It is for development and testing rather than for running this
-software on a Linux box.
+software on a Linux box. [`sim-mesh/`](sim-mesh/README.md) holds the
+station's sim-mesh driver and what its station has instead of hardware; a
+catalogue's `hw-sim-mesh-<arch>` entries build the firmware zip sim-mesh
+installs.
 
 Primary target is the **LilyGo T-Deck Plus** (ESP32-S3FN16R8, 16 MB flash, 8 MB octal PSRAM, SX1262 LoRa, 320×240 LCD, QWERTY, trackball, GPS); the **Heltec WiFi LoRa 32 V4** is a headless secondary. PSRAM is required — the Heltec V3, which has none, does not qualify.
 
