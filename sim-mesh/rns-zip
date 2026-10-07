@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+"""`post:` for a catalogue's hw-sim-mesh-<arch> entry: the image again, as
+the RNode under Reticulum's Python reference implementation and an LXMF
+router, made by sim-mesh-firmware's standard-reticulum/make_zip.py beside
+this repository in the workspace.
+
+    rns-zip IMAGE
+
+IMAGE is <slug>_<entry>_<stamp>.zip; the zip goes beside it as
+<slug>_<entry>+rns-<rns version>_<stamp>.zip, the firmware inside named
+rns-<rns version>-<the image's base>_<arch>_<stamp>.
+"""
+
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
+
+PACKER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..",
+                      "sim-mesh-firmware", "standard-reticulum", "make_zip.py")
+
+
+def main():
+    image = os.path.abspath(sys.argv[1])
+    head, _, stamp = os.path.basename(image)[:-len(".zip")].rpartition("_")
+    with tempfile.TemporaryDirectory() as tmp:
+        made = subprocess.run([sys.executable, PACKER, image, "--out", tmp], check=True,
+                              stdout=subprocess.PIPE, text=True).stdout.split()[-1]
+        rns = os.path.basename(made).split("-")[1]
+        dest = os.path.join(os.path.dirname(image), "%s+rns-%s_%s.zip" % (head, rns, stamp))
+        shutil.copyfile(made, dest + ".part")
+        os.replace(dest + ".part", dest)
+    print(dest)
+
+
+if __name__ == "__main__":
+    main()
