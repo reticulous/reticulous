@@ -1,0 +1,30 @@
+# three-leaves-two-relays: five stations for mesh-smoke-test, on any synthetic ground.
+#
+#    leaf-a ───── leaf-b
+#      │            │
+#    relay-1 ──── relay-2 ───── leaf-c
+#
+# Every pair's loss is stated below, so the lines above are the only radio
+# links and where a station stands on the map plays no part. A stated 110 dB
+# is a strong link: at 14 dBm it arrives at -96 dBm, about 28 dB above what
+# SF7 at 125 kHz needs. A stated 200 dB is never heard.
+nodes:
+  leaf-a:  { id: 1, lat: 0.018, lon: 0.000, height_m: 2, height_from: assumed, max_dbm: 14, antenna: { type: rubber_duck }, tags: [leaf] }
+  leaf-b:  { id: 2, lat: 0.018, lon: 0.018, height_m: 2, height_from: assumed, max_dbm: 14, antenna: { type: rubber_duck }, tags: [leaf] }
+  relay-1: { id: 3, lat: 0.000, lon: 0.000, height_m: 2, height_from: assumed, max_dbm: 14, antenna: { type: rubber_duck }, tags: [transport] }
+  relay-2: { id: 4, lat: 0.000, lon: 0.018, height_m: 2, height_from: assumed, max_dbm: 14, antenna: { type: rubber_duck }, tags: [transport] }
+  leaf-c:  { id: 5, lat: 0.000, lon: 0.036, height_m: 2, height_from: assumed, max_dbm: 14, antenna: { type: rubber_duck }, tags: [leaf] }
+offsets: []
+links:
+  # the five radio links
+  - { between: [leaf-a,  leaf-b],  loss_db: 110 }
+  - { between: [leaf-a,  relay-1], loss_db: 110 }
+  - { between: [leaf-b,  relay-2], loss_db: 110 }
+  - { between: [relay-1, relay-2], loss_db: 110 }
+  - { between: [relay-2, leaf-c],  loss_db: 110 }
+  # every other pair: out of range
+  - { between: [leaf-a,  relay-2], loss_db: 200 }
+  - { between: [leaf-a,  leaf-c],  loss_db: 200 }
+  - { between: [leaf-b,  relay-1], loss_db: 200 }
+  - { between: [leaf-b,  leaf-c],  loss_db: 200 }
+  - { between: [relay-1, leaf-c],  loss_db: 200 }

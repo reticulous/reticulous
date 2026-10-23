@@ -1,0 +1,66 @@
+generated: [web-interface/package.json, web-interface/package-lock.json]
+test_only: [tests/**, tests.yaml]
+
+test_configs:
+  sim_image:
+    category: reticulum
+    driver: sim-mesh/driver.py
+    virtual_hardware: ESP32-S3
+    virtual_radio: SX1262
+  base: >-
+    reticulous/reticulous --with spangap/hw-linux
+    -x reticulous/rnsh -x reticulous/iface-auto -x reticulous/iface-ble
+    -x reticulous/rnode-ble -x reticulous/nomad -x reticulous/maps
+    -x spangap/viewer -x spangap/acme -x spangap/duckdns -x spangap/sshd
+    -x spangap/upnp -x spangap/wg
+  variants:
+    no-supe: --kconfig CONFIG_LORA_NO_SUPE=y
+    supe:
+      settings: {s.lora.0.SUPE.enable: 1}
+    supe-afa1:
+      settings: {s.lora.0.SUPE.enable: 1, s.lora.0.SUPE.afa: 1}
+      tier: extended
+    supe-off:
+      tier: extended
+
+tests:
+  - id: build-full   #full image
+    type: host
+    tier: extended
+    run: spangap build reticulous/reticulous --with spangap/hw-heltecv4
+    tools: [docker, spangap]
+
+  - id: mesh-smoke
+    type: sim
+    tier: smoke
+    run: >-
+      cp tests/sim/three-leaves-two-relays.yaml "$MESH_WORKSPACE/sim-mesh/testbed/nodesets/" &&
+      "$MESH_WORKSPACE/sim-mesh/sim" run tests/sim/mesh-smoke-test.py
+      --geodata plain-27 --nodeset three-leaves-two-relays --no-browser
+      --set firmware="$TEST_FIRMWARE"
+      --set settings="${TEST_SETTINGS:-none}"
+    tools: [docker]
+    configs: all
+    straddle_deps: [sim-mesh/sim-mesh]
+    timeout: 180
+
+  - id: berlin-traffic
+    type: sim
+    tier: extended
+    run: |
+      name="device-test-berlin-$(date +%s)"
+      settings=$(printf '%s\n' $TEST_SETTINGS | sed -n 's/^\([^=]*\)=\(.*\)$/set \1 \2/p' | paste -sd ';')
+      "$MESH_WORKSPACE/sim-mesh/sim" run tests/sim/berlin-traffic.py \
+        --geodata berlin-centre --nodeset berlin-50 --name "$name" --no-browser \
+        --set firmware="$TEST_FIRMWARE" --set repeater_firmware="$TEST_FIRMWARE" \
+        --set reticulous_settings="${settings:-none}"
+      rc=$?
+      cp "$MESH_WORKSPACE/sim-mesh/testbed/runs/$name/results.json" "$TEST_OUT/" 2>/dev/null
+      exit $rc
+    tools: [docker]
+    configs: all
+    straddle_deps: [sim-mesh/sim-mesh]
+    timeout: 2400
+    expect:
+      delivery.delivered_ratio: ">= 0.90"
+      delivery.proven_ratio: ">= 0.85"
