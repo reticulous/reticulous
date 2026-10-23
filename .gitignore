@@ -7,9 +7,10 @@ __pycache__/
 *.pyc
 *.pyo
 
-# Build artifacts (spangap-generated). One build.<target>/ per target holds all
-# of a build's output — IDF's tree, sdkconfig, staging/, partitions.csv,
-# dependencies.lock and the web bundle.
+# Build artifacts (spangap-generated). One build.<target>/ per target, and one
+# build.<catalogue>.<entry>/ per catalogue entry, holds all of a build's output —
+# IDF's tree, sdkconfig, staging/, partitions.csv, dependencies.lock and the web
+# bundle.
 esp-idf/build.*/
 esp-idf/managed_components/
 web-interface/node_modules/

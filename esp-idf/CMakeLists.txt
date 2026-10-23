@@ -55,9 +55,7 @@ project(reticulous)
 # when OTA is on, fixed when OTA is off).
 spangap_browser_build("${CMAKE_SOURCE_DIR}/../web-interface")
 # Tracked /fixed files (the on-device manual, webroot/WELCOME.md — it overrides
-# the viewer straddle's generic welcome page). They can't live in ../data:
-# deploy.sh wipes and regenerates ../data/webroot wholesale, so it's gitignored.
-# Registered here, after project(), this dir merges after every staged
+# the viewer straddle's generic welcome page). Registered here, after project(), this dir merges after every staged
 # straddle's own SPANGAP_EXTRA_DATA_DIRS entry and therefore wins collisions.
 set_property(GLOBAL APPEND PROPERTY SPANGAP_EXTRA_DATA_DIRS
             "${CMAKE_SOURCE_DIR}/data")

@@ -63,7 +63,8 @@ The `hw-*` board straddles don't decide what the device does — they only make 
 
 ```sh
 spangap build reticulous/reticulous --with spangap/hw-lilygo-tdeck      # LilyGo T-Deck Plus (has a screen → on-device UI)
-spangap build reticulous/reticulous --with spangap/hw-heltecv4   # Heltec WiFi LoRa 32 V4 (headless)
+spangap build reticulous/reticulous --with spangap/hw-heltecv4-r2  # Heltec WiFi LoRa 32 V4, 2 MB PSRAM (OLED status pages)
+spangap build reticulous/reticulous --with spangap/hw-heltecv4-r8  # Heltec WiFi LoRa 32 V4, 8 MB PSRAM (OLED status pages)
 spangap build reticulous/reticulous --with spangap/hw-meshnology-w12  # Meshnology W12 (LR2021, 30 dBm, OLED status pages)
 spangap build reticulous/reticulous --with spangap/hw-lilygo-tbeam-supreme  # LilyGo T-Beam S3 Supreme (AXP2101 rails, GNSS, RTC, OLED status pages)
 spangap build reticulous/reticulous --with spangap/hw-wismesh-tap-v2  # RAK WisMesh TAP V2 (touch screen → on-device UI, GNSS)

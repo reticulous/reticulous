@@ -66,7 +66,7 @@ component names), picked up by `esp-idf/CMakeLists.txt` via
   `upnp`, `wg`, `duckdns`, `sshd` even though `straddle.yaml` never names them.)
 - **The on-device LCD UI** (`spangap-lcd`) is *not* listed either — it rides on
   the board. A board with a screen (`hw-lilygo-tdeck`) `additional_installs`
-  `spangap-lcd` itself; a screenless board (`hw-heltecv4`) builds headless with
+  `spangap-lcd` itself; a screenless board (`hw-heltecv4-r2`) builds headless with
   no extra flags.
 - **The LoRa interface** (`iface-lora`) rides on the board for the same reason.
   A board with a modem `additional_installs` it — and pulls `loramon` in behind
@@ -410,7 +410,7 @@ today; the facts above are the design and the host-side contracts it rests on.)
   `--flash-size` (§7).
 - **Always build the buildable WITH a board.** The canonical invocation is
   `spangap build reticulous/reticulous --with spangap/hw-lilygo-tdeck` (or
-  `--with spangap/hw-heltecv4` for the screenless board); `spangap/hw-lilygo-tdeck`
+  `--with spangap/hw-heltecv4-r2` for a screenless board); `spangap/hw-lilygo-tdeck`
   additionally pulls in `spangap-lcd`, so the on-device LCD C++ (each straddle's
   `esp-idf/conditional/spangap-lcd/src/`) only compiles when a screen board is
   in the build. A bare `spangap build` replays the last explicit invocation

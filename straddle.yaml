@@ -10,7 +10,7 @@
 # Build it WITH a board straddle — the board supplies the pin maps, the board
 # bring-up hooks, and the hardware kconfig (flash size, PSRAM mode, display):
 #   spangap build reticulous/reticulous --with spangap/hw-lilygo-tdeck
-#   spangap build reticulous/reticulous --with spangap/hw-heltecv4
+#   spangap build reticulous/reticulous --with spangap/hw-heltecv4-r2
 schema_version: 1
 name: reticulous/reticulous
 prefix: reticulous
@@ -26,9 +26,13 @@ default_hostname: reticulous
 # must front exactly this port for an in-container reference client to attach.
 # One-line flow list — the host tooling reads it with a sed, not a YAML parser.
 bridge_ports: [7633]
-# What a fresh workspace's `builds/local` catalogue starts out as: the published
-# `dev` catalogue, whose entries are every board this project builds for. Copied
-# once by the first `spangap flashmon`; after that the file is the user's.
+# The project these images are published under: its catalogues live in the
+# workspace's reticulous-builds/, which a local flashmon serves as /builds.
+project: Reticulous
+# What a fresh workspace's `reticulous-builds/local` catalogue starts out as: the
+# published `dev` catalogue, whose entries are every board this project builds
+# for. Copied once by the first `spangap flashmon`; after that the file is the
+# user's.
 catalogue_seed: https://reticulous.net/builds/dev/builds.yaml
 firmware: esp-idf
 browser: web-interface
@@ -51,9 +55,9 @@ init:
 #     enough.
 #   - The on-device LCD UI is NOT listed here either — it rides on the board: a
 #     board with a screen (hw-lilygo-tdeck) additional-installs spangap-lcd itself, so
-#     a screenless board (hw-heltecv4) builds headless with no extra flags.
+#     a screenless board (hw-heltecv4-r2) builds headless with no extra flags.
 #   - Nor is the LoRa radio: iface-lora rides on the board the same way, so a
-#     board with a modem (hw-heltecv4) additional-installs it — and the two
+#     board with a modem (hw-heltecv4-r2) additional-installs it — and the two
 #     straddles that are about the radio rather than about this image, LoRaMon
 #     and the RNode Bluetooth door, come with it — while a radioless board
 #     (hw-waveshare-28b) gets no LoRa settings section, no s.lora.* keys and no
