@@ -34,7 +34,7 @@
  *   network    wifi.cmd.add = "<ssid>\t<pass>"   (net.cpp's task loop)
  *   frequency  lora.0.freq_mhz                    (lora.cpp's unit bridge → Hz)
  *   modem      s.lora.0.{spreading_factor,coding_rate}, lora.0.bw_khz
- *   mesh name  lxmf.cmd.identity_new = "<name>"   (lxmf allocates + keygens)
+ *   mesh name  s.lxmf.identity_pending = "<name>" (lxmf allocates + keygens)
  * and the radio is enabled (s.lora.0.enable) by the OK on the modem window and
  * nowhere else — so a half-finished LoRa answer leaves the radio off rather
  * than on a frequency nobody confirmed.
@@ -990,16 +990,19 @@ bool commitLxmfName(void) {
      * Skip is how it is made. An empty field under "Create identity" is a
      * mis-press far more often than an answer. */
     if (name.empty()) { setMsg("Give a name, or Skip.", false); focusField(w.lxmfName); return false; }
-    /* The sentinel lxmf watches: it allocates the slot, generates the keypair
-     * and writes the display name — identity creation belongs to lxmf, and this
-     * is the one way in that both the browser and the CLI already use. */
-    storageSet("lxmf.cmd.identity_new", name.c_str());
+    /* Identity creation belongs to lxmf: it allocates the slot, generates the
+     * keypair and writes the display name. lxmf starts with rnsd, up to a
+     * minute after this, so the request is persisted — finish() saves it with
+     * s.onboard.done — and lxmf consumes it once the identity exists. */
+    storageSet("s.lxmf.identity_pending", name.c_str());
     info("onboarding: LXMF identity \"%s\"\n", name.c_str());
     return true;
 }
 
 /* No identity yet — the only state in which asking makes sense. */
-bool lxmfUnset(void) { return storageArrayCount("s.lxmf.id") <= 0; }
+bool lxmfUnset(void) {
+    return storageArrayCount("s.lxmf.id") <= 0 && !storageExists("s.lxmf.identity_pending");
+}
 
 #else   /* no messaging in this build */
 
@@ -1036,8 +1039,8 @@ bool stepNeeded(int step) {
 /* The second flush. Everything the wizard handed to another task lands as a
  * PERSISTENT key after the flush below has already run: net writes
  * s.net.wifi.nets.<n> when it takes wifi.cmd.add, lora converts lora.0.freq_mhz
- * into s.lora.0.frequency on its own task, and lxmf writes the identity and its
- * private key some way after identity_new. Storage's own deadline is a minute
+ * into s.lora.0.frequency on its own task. (The mesh name is persisted by the
+ * wizard itself, and lxmf turns it into an identity once rnsd starts it.) Storage's own deadline is a minute
  * from the first dirty write, so a device switched off or reset in that minute
  * would come back with the password and the hostname — the two the wizard wrote
  * itself — and none of the rest, which is the worst possible half.
