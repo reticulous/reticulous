@@ -78,6 +78,7 @@ additional_installs:
 # `spangap build --with reticulous/lxmproxy`.
 #  - reticulous/lxmproxy
   - reticulous/nomad
+  - reticulous/rrc
   - reticulous/maps
   - spangap/spangap-net
   - spangap/spangap-web
@@ -108,4 +109,4 @@ settings:
 # Anything not named (a `--with` straddle's app, a board's) falls in after these,
 # in each surface's own default order, and on the panel the operator's own drag
 # (s.lcd.launcher_order) outranks the lot.
-app_order: [LXMF, Nomad, LoRaMon, Maps, Settings, Log, CLI, Activity, NetGraph, Viewer, LcdMirror]
+app_order: [LXMF, Nomad, RRC, LoRaMon, Maps, Settings, Log, CLI, Activity, NetGraph, Viewer, LcdMirror]
