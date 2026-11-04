@@ -63,6 +63,16 @@ init:
 #     (hw-waveshare-28b) gets no LoRa settings section, no s.lora.* keys and no
 #     launcher tile for a radio it hasn't got. The interfaces here are the ones
 #     every board can run.
+#   - spangap/audio is the exception to that rule: partyline requires
+#     reticulous/lxst, which requires spangap/audio, so every image stages it
+#     whether or not the board has a mic or a speaker, for its codecs (lxst
+#     transcodes for a browser on the device). The hardware is stated by the
+#     board instead: AUDIO_IN_ENABLE and AUDIO_OUT_ENABLE default off, a board
+#     with a mic/speaker (hw-lilygo-tdeck) turns them on, and only then is the
+#     I2S audio engine built; consumers gate sound on those, not on the
+#     straddle's presence. A board that cannot carry the codecs (a chip they are
+#     not built for, or 4 MB of flash) is built with
+#     `-x reticulous/partyline -x reticulous/lxst -x spangap/audio`.
 additional_installs:
   - reticulous/rns
   - reticulous/rnsh
@@ -79,6 +89,7 @@ additional_installs:
 #  - reticulous/lxmproxy
   - reticulous/nomad
   - reticulous/rrc
+  - reticulous/partyline
   - reticulous/maps
   - spangap/spangap-net
   - spangap/spangap-web
@@ -109,4 +120,4 @@ settings:
 # Anything not named (a `--with` straddle's app, a board's) falls in after these,
 # in each surface's own default order, and on the panel the operator's own drag
 # (s.lcd.launcher_order) outranks the lot.
-app_order: [LXMF, Nomad, RRC, LoRaMon, Maps, Settings, Log, CLI, Activity, NetGraph, Viewer, LcdMirror]
+app_order: [LXMF, Nomad, RRC, Partyline, Phone, LoRaMon, Maps, Settings, Log, CLI, Activity, NetGraph, Viewer, LcdMirror]
