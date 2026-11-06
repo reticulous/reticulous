@@ -12,6 +12,7 @@
     "@quasar/extras": "^1.17.0",
     "@xterm/addon-fit": "^0.11.0",
     "@xterm/xterm": "^6.0.0",
+    "lcdmirror": "file:../../lcdmirror/browser",
     "loramon": "file:../../loramon/browser",
     "lxmf": "file:../../lxmf/browser",
     "lxst": "file:../../lxst/browser",
