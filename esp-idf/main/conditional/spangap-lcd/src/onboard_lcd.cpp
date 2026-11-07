@@ -262,9 +262,9 @@ void focusField(lv_obj_t* obj) {
 
 /* ---- typing on a device with no keys ----
  * The panel's own keyboard is the lcd component's (lcdKeyboardAttach in
- * mkField below): a tap on any field puts it up, ✓ writes the text back, and
- * on these one-line fields it fires the field's LV_EVENT_READY as well — so
- * the ✓ is the Enter the step was already written around. The LoRa frequency
+ * mkField below): a tap on any field puts it up typing straight into it, and on
+ * these one-line fields its Enter fires the field's LV_EVENT_READY — the Enter
+ * the step was already written around. The LoRa frequency
  * has its own keypad on the step itself and is never attached. */
 
 /* Where a step OPENS. Focus on a field says "start typing", which is worth
@@ -272,7 +272,8 @@ void focusField(lv_obj_t* obj) {
  * the answer is a tap — and the keyboard is not put up here either: it would
  * cover the question the step is asking and the Skip that answers it another
  * way. On a touch device a step opens as what it is, a question with fields
- * under it. */
+ * under it. A step whose field opens holding a default it wants replaced or
+ * accepted (the hostname) opens on chainField instead. */
 void editField(lv_obj_t* obj) {
     if (lcdKeyboardOnScreen()) return;
     focusField(obj);
@@ -309,22 +310,26 @@ lv_obj_t* mkField(lv_obj_t* parent, const char* placeholder, bool secret, lv_eve
  * desktop the answer is to open with the text selected, so the first keystroke
  * replaces it; LVGL has no programmatic select-all, so this is that behaviour
  * built from what it does have: the value stands, drawn on the accent so it
- * reads as picked-out rather than typed, and the first key that is not
- * navigation clears it and lands in an empty field.
+ * reads as picked-out rather than typed, with the caret at its end, and the
+ * first character typed clears it and lands in an empty field. Backspace
+ * clears it and stops there. Enter accepts it.
  *
- * Clicking into the field settles it instead of clearing it — a click is how
- * you say "I want to edit this one", exactly as it drops a selection. */
+ * The field opens with the keys on it (chainField), so typing starts at once.
+ * Tapping into it keeps the selection and puts the caret back at the end — a
+ * tap is how a touch device brings its keyboard to the field, not a choice of
+ * where to edit. Left or right is that choice: it drops the selection and keeps
+ * the text.
+ *
+ * It is the textarea's INSERT event that is watched, not keys: the on-screen
+ * keyboard types straight into the field and never sends a key, and every
+ * character and every rub-out, from either keyboard, passes through INSERT. */
 lv_obj_t* s_pristine = nullptr;      /* the field still holding its default, if any */
 
 /* Selected text, drawn the way every other interface draws it: white on the
  * accent BEHIND THE GLYPHS, not a filled field — a filled field is a button.
  * LVGL draws that itself, so this is a real selection rather than something
  * that looks like one: the label carries the range and the LV_PART_SELECTED
- * colours, which is where lv_label's draw reads them from.
- *
- * The caret goes with it. That is half the message — a field with a cursor
- * blinking in it is asking to be added to, while a highlighted run with none is
- * a thing that will be replaced. */
+ * colours, which is where lv_label's draw reads them from. */
 void selectedStyle(lv_obj_t* ta, bool on) {
     lv_obj_t* lbl = lv_textarea_get_label(ta);
     if (lbl) {
@@ -341,7 +346,6 @@ void selectedStyle(lv_obj_t* ta, bool on) {
             lv_label_set_text_selection_end(lbl, LV_LABEL_TEXT_SELECTION_OFF);
         }
     }
-    lv_obj_set_style_opa(ta, on ? LV_OPA_TRANSP : LV_OPA_COVER, LV_PART_CURSOR);
 }
 
 void settlePristine(void) {
@@ -350,24 +354,28 @@ void settlePristine(void) {
     s_pristine = nullptr;
 }
 
+/* About to change: a character (which then lands in the emptied field) or a
+ * rub-out (LV_KEY_DEL as the inserted text — dropped, the clearing was it). */
+void onPristineInsert(lv_event_t* e) {
+    lv_obj_t* ta = lv_event_get_target_obj(e);
+    if (ta != s_pristine) return;
+    const char* ins = (const char*)lv_event_get_param(e);
+    settlePristine();
+    lv_textarea_set_text(ta, "");
+    if (ins && ins[0] == LV_KEY_DEL && !ins[1]) lv_textarea_set_insert_replace(ta, "");
+}
+
 void onPristineKey(lv_event_t* e) {
     lv_obj_t* ta = lv_event_get_target_obj(e);
     if (ta != s_pristine) return;
-    switch (lv_event_get_key(e)) {
-        /* Navigation and the two answers leave the default standing: they are
-         * how you accept it, not how you replace it. */
-        case LV_KEY_ENTER: case LV_KEY_ESC:
-        case LV_KEY_LEFT:  case LV_KEY_RIGHT:
-        case LV_KEY_UP:    case LV_KEY_DOWN:
-        case LV_KEY_NEXT:  case LV_KEY_PREV:
-            return;
-        default: break;
-    }
-    settlePristine();
-    lv_textarea_set_text(ta, "");        /* …and the key lands in an empty field */
+    const uint32_t k = lv_event_get_key(e);
+    if (k == LV_KEY_LEFT || k == LV_KEY_RIGHT) settlePristine();
 }
 
-void onPristineClick(lv_event_t*) { settlePristine(); }
+void onPristineClick(lv_event_t* e) {
+    lv_obj_t* ta = lv_event_get_target_obj(e);
+    if (ta == s_pristine) lv_textarea_set_cursor_pos(ta, LV_TEXTAREA_CURSOR_LAST);
+}
 
 /* Fill `ta` with `text` and arm the behaviour above. Empty text arms nothing —
  * there is no default to replace. */
@@ -376,6 +384,8 @@ void prefillSelected(lv_obj_t* ta, const char* text) {
     if (!text || !*text) return;
     s_pristine = ta;
     selectedStyle(ta, true);
+    lv_textarea_set_cursor_pos(ta, LV_TEXTAREA_CURSOR_LAST);
+    lv_obj_add_event_cb(ta, onPristineInsert, LV_EVENT_INSERT, nullptr);
     lv_obj_add_event_cb(ta, onPristineKey,
                         (lv_event_code_t)(LV_EVENT_KEY | LV_EVENT_PREPROCESS), nullptr);
     lv_obj_add_event_cb(ta, onPristineClick, LV_EVENT_CLICKED, nullptr);
@@ -517,7 +527,7 @@ void buildHostname(void) {
      * Enter accepts it. */
     prefillSelected(w.host, storageGetStr("s.net.hostname", "").c_str());
     mkLabel(w.body, "Letters, digits and _ only.", LcdFace::UI, 11, COL_MUTED);
-    editField(w.host);
+    chainField(w.host);
 }
 
 bool commitHostname(void) {
